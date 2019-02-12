@@ -106,10 +106,10 @@ client.get_info
 # is the same as: 
 client.grpc_client.get_info(Lnrpc::GetInfoRequest.new, { metadata: { macaroon: macaroon } })
 
-client.add_invoice(value: 1000, memo: 'I :heart: ruby')
+client.list_channels(inactive_only: true)
 # is the same as: 
-invoice_request = Lnrpc::AddInvoiceRequest(value: 1000, memo: 'I :heart: ruby')
-client.grpc_client.add_invoice(invoice_request, { metadata: { macaroon: macaroon } })
+request = Lnrpc::ListChannelsRequest(inactive_only: true)
+client.grpc_client.list_channesl(request, { metadata: { macaroon: macaroon } })
 ```
 
 
