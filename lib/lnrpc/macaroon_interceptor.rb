@@ -7,7 +7,9 @@ module Lnrpc
     end
 
     def request_response(request:, call:, method:, metadata:)
-      metadata['macaroon'] ||= @macaroon
+      if !metadata.has_key?('macaroon') && !metadata.has_key?(:macaroon)
+        metadata[:macaroon] = @macaroon
+      end
       yield
     end
   end
