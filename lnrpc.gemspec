@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["hello@michaelbumann.com"]
 
   spec.summary       = %q{gRPC interface for lnd packed as ruby gem}
-  spec.description   = %q{gRPC service definitions for the Lightning Network Daemon (lnd) gRPC interace packed as ruby gem}
+  spec.description   = %q{gRPC service definitions for the Lightning Network Daemon (lnd) gRPC interface packed as ruby gem}
   spec.homepage      = "https://github.com/bumi/lnrpc"
   spec.license       = "MIT"
 
