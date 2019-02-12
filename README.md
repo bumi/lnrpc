@@ -97,26 +97,24 @@ lnd.grpc_client
 
 The client wrapper passes any supported RPC method call to the gRPC client applying the following conventions:
 
-If the first parameter is a hash or blank the corresponding gRPC request object will be instantiated
-
-If the second paramter is blank the macaroon will be passed as metadata: `{ metadata: { macaroon: self.macaroon } }`
+If the first parameter is a hash or blank the corresponding gRPC request object will be instantiated. 
 
 Example:
 
 ```ruby
 client.get_info
 # is the same as: 
-client.grpc_client.get_info(Lnrpc::GetInfoRequest.new, { metadata: { macaroon: macaroon } })
+client.grpc_client.get_info(Lnrpc::GetInfoRequest.new)
 
 client.list_channels(inactive_only: true)
 # is the same as: 
 request = Lnrpc::ListChannelsRequest.new(inactive_only: true)
-client.grpc_client.list_channels(request, { metadata: { macaroon: macaroon } })
+client.grpc_client.list_channels(request)
 
 client.wallet_balance.total_balance
 # is the same as: 
 request = Lnrpc::WalletBalanceRequest.new()
-client.grpc_client.wallet_balance(request, { metadata: { macaroon: macaroon } }).total_balance
+client.grpc_client.wallet_balance(request).total_balance
 ```
 
 
