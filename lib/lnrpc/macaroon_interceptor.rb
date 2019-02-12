@@ -7,7 +7,7 @@ module Lnrpc
     end
 
     def request_response(request:, call:, method:, metadata:)
-      metadata['macaroon'] = @macaroon
+      metadata['macaroon'] ||= @macaroon
       yield
     end
   end
