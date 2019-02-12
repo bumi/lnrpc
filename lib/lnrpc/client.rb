@@ -1,3 +1,5 @@
+require "grpc"
+require "lnrpc/macaroon_interceptor"
 module Lnrpc
   class Client
     attr_accessor :address, :credentials, :macaroon, :grpc_client
@@ -38,7 +40,10 @@ module Lnrpc
       end
       self.macaroon = options[:macaroon]
 
-      self.grpc_client = Lnrpc::Lightning::Stub.new(self.address, GRPC::Core::ChannelCredentials.new(self.credentials))
+      self.grpc_client = Lnrpc::Lightning::Stub.new(self.address,
+                                                    GRPC::Core::ChannelCredentials.new(self.credentials),
+                                                    interceptors: [Lnrpc::MacaroonInterceptor.new(self.macaroon)]
+                                                   )
     end
 
     def pay(payreq)
@@ -48,10 +53,9 @@ module Lnrpc
     def method_missing(m, *args, &block)
       if self.grpc_client.respond_to?(m)
         params  = args[0]
-        options = args[1] || { metadata: { macaroon: self.macaroon } }
 
-        request = params.nil? ? request_class_for(m).new : request_class_for(m).new(params)
-        self.grpc_client.send(m, request, options)
+        args[0] = params.nil? ? request_class_for(m).new : request_class_for(m).new(params)
+        self.grpc_client.send(m, *args)
       else
         super
       end
