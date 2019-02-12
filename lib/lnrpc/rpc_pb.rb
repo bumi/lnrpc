@@ -233,6 +233,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     repeated :uris, :string, 12
     optional :best_header_timestamp, :int64, 13
     optional :version, :string, 14
+    optional :num_inactive_channels, :uint32, 15
   end
   add_message "lnrpc.ConfirmationUpdate" do
     optional :block_sha, :bytes, 1
@@ -362,6 +363,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :expiry, :uint32, 5
     optional :amt_to_forward_msat, :int64, 6
     optional :fee_msat, :int64, 7
+    optional :pub_key, :string, 8
   end
   add_message "lnrpc.Route" do
     optional :total_time_lock, :uint32, 1
