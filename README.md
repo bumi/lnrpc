@@ -1,4 +1,4 @@
-# Lnrpc - gRPC client for LND, the Lightning Network Daemon
+# Lnrpc - ruby gRPC client for LND
 
 a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem. 
 
@@ -22,7 +22,17 @@ Or install it yourself as:
 ## Usage
 
 This gem makes the gRPC client classes created from the [LND service defintions](https://github.com/lightningnetwork/lnd/tree/master/lnrpc) available.  
-You should get familiar with [gRPC](https://grpc.io/). 
+
+```ruby
+require "lnrpc"
+
+# the gRPC client is available under the Lnrpc namespace, e.g. 
+
+Lnrpc::Lightning::Stub
+Lnrpc::GetInfoRequest
+```
+
+Learn more about [gRPC](https://grpc.io/) on [gRPC.io](https://grpc.io/).
 
 The LND API reference can be found here: [https://api.lightning.community/](https://api.lightning.community/)
 
@@ -41,13 +51,18 @@ client = Lnrpc::Lightning::Stub.new("localhost:10009", GRPC::Core::ChannelCreden
 request = Lnrpc::GetInfoRequest.new
 response = client.get_info(request, { metadata: { macaroon: macaroon } }) #=> Lnrpc::GetInfoResponse
 puts response.alias 
-
 ```
 
 ### Client wrapper
 
 An optional client wrapper ([Lnrpc::Client](https://github.com/bumi/lnrpc/blob/master/lib/lnrpc/client.rb")) makes 
 initializing the gRPC client easier and removes the need for some boilerplate code for calling RPC methods.
+
+#### Example
+```ruby
+lnd = Lnrpc::Client.new({credentials_path: '/path/to.cert.cls', macaroon_path: '/path/to/admin.macaroon'})
+lnd.get_info
+```
 
 #### Initializing a new client
 
