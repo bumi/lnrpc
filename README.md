@@ -64,6 +64,8 @@ lnd = Lnrpc::Client.new({credentials_path: '/path/to.cert.cls', macaroon_path: '
 lnd.get_info
 ```
 
+Also have a look at [examples.rb](https://github.com/bumi/lnrpc/blob/master/examples.rb)
+
 #### Initializing a new client
 
 The Lnrpc::Client constructor allows the following options: 
