@@ -1,6 +1,8 @@
 # Lnrpc - ruby gRPC client for LND
 
-a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem. 
+a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem.
+
+Currently published as [beta release](https://rubygems.org/gems/lnrpc) to rubygems for LND v0.5.2.beta. (see [#Versioning](#Versioning))
 
 
 ## Installation
@@ -18,6 +20,8 @@ And then execute:
 Or install it yourself as:
 
     $ gem install lnrpc
+    # or for pre releases:
+    $ gem install lnrcp --pre
 
 ## Usage
 
