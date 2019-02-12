@@ -57,6 +57,10 @@ module Lnrpc
       end
     end
 
+    def inspect
+      "#{self.to_s} @address=\"#{self.address}\""
+    end
+
     private
     def request_class_for(method_name)
       if NON_CONVENTION_REQUEST_CLASSES.key?(method_name.to_sym)
