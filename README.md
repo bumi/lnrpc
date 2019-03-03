@@ -59,7 +59,7 @@ puts response.alias
 
 ### Client wrapper
 
-An optional client wrapper ([Lnrpc::Client](https://github.com/bumi/lnrpc/blob/master/lib/lnrpc/client.rb")) makes 
+An optional client wrapper ([Lnrpc::Client](https://github.com/bumi/lnrpc/blob/master/lib/lnrpc/client.rb)) makes 
 initializing the gRPC client easier and removes the need for some boilerplate code for calling RPC methods.
 
 #### Example
