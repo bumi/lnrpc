@@ -1,3 +1,3 @@
 module Lnrpc
-  VERSION = "0.5.2.beta"
+  VERSION = "0.5.2"
 end
