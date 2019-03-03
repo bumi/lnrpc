@@ -27,5 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   
-  spec.add_dependency "grpc", ">= 1.16.0"
+  spec.add_dependency "grpc", ">= 1.19.0"
+  spec.add_dependency "google-protobuf", ">=3.7"
 end
