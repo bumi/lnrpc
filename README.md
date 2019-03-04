@@ -83,7 +83,7 @@ The Lnrpc::Client constructor allows the following options:
 * address:
   - `address` : lnd address as string. format: address:port, e.g. localhost:10009 (default)
 
-If no credentials or no macaroon is provied defaults files are assumed in `ENV['LND_HOME'] || "~/.lnd"`.  
+If no credentials or no macaroon is provided default files are assumed in `ENV['LND_HOME'] || "~/.lnd"`.  
 A macaroon is required.
 
 ```ruby
