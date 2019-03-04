@@ -75,7 +75,7 @@ Also have a look at [examples.rb](https://github.com/bumi/lnrpc/blob/master/exam
 The Lnrpc::Client constructor allows the following options: 
 
 * credentials: 
-  - `credentials` : the credentials data as string
+  - `credentials` : the credentials data as string (pass nil if a "trusted" cert (e.g. from letsencrypt is used)
   - `credentials_path` : the path to a credentials file (tls.cert) as string (default: `"#{LND_HOME_DIR}/tls.cert"` )
 * macaroon: 
   - `macaroon` : the macaroon as hex string
