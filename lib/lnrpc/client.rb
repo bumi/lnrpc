@@ -2,7 +2,8 @@ require "grpc"
 require "lnrpc/macaroon_interceptor"
 module Lnrpc
   class Client
-    attr_accessor :address, :credentials, :macaroon, :grpc_client
+    attr_accessor :address, :credentials, :macaroon
+    attr_writer :grpc_client
 
     LND_HOME_DIR = ENV['LND_HOME'] || "~/.lnd"
     DEFAULT_ADDRESS = 'localhost:10009'
@@ -31,19 +32,25 @@ module Lnrpc
     def initialize(options={})
       self.address = options[:address] || DEFAULT_ADDRESS
 
-      options[:credentials] ||= ::File.read(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
-      self.credentials = options[:credentials]
+      if options.has_key?(:credentials)
+        self.credentials = options[:credentials]
+      elsif File.exists?(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
+        self.credentials = ::File.read(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
+      else
+        self.credentials = nil
+      end
 
-      options[:macaroon] ||= begin
-        macaroon_binary = ::File.read(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH))
-        macaroon_binary.unpack("H*")
+      unless options.has_key?(:macaroon)
+        options[:macaroon] = ::File.read(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH)).unpack("H*")
       end
       self.macaroon = options[:macaroon]
+    end
 
-      self.grpc_client = Lnrpc::Lightning::Stub.new(self.address,
+    def grpc_client
+      @grpc_client ||= Lnrpc::Lightning::Stub.new(self.address,
                                                     GRPC::Core::ChannelCredentials.new(self.credentials),
                                                     interceptors: [Lnrpc::MacaroonInterceptor.new(self.macaroon)]
-                                                   )
+                                                  )
     end
 
     def pay(payreq)
