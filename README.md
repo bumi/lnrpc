@@ -76,13 +76,15 @@ The Lnrpc::Client constructor allows the following options:
 
 * credentials: 
   - `credentials` : the credentials data as string
-  - `credentials_path` : the path to a credentials file (tls.cert) as string
+  - `credentials_path` : the path to a credentials file (tls.cert) as string (default: `"#{LND_HOME_DIR}/tls.cert"` )
 * macaroon: 
   - `macaroon` : the macaroon as hex string
-  - `macaroon_path` : the path to the macaroon file created by lnd as string
+  - `macaroon_path` : the path to the macaroon file created by lnd as string (default: `"#{LND_HOME_DIR}/data/chain/bitcoin/mainnet/admin.macaroon"`)
 * address:
-  - `address` : lnd address as string. format: address:port, e.g. default: localhost:10009
+  - `address` : lnd address as string. format: address:port, e.g. localhost:10009 (default)
 
+If no credentials or no macaroon is provied defaults files are assumed in `ENV['LND_HOME'] || "~/.lnd"`.  
+A macaroon is required.
 
 ```ruby
 require 'lnrpc'
