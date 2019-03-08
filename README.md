@@ -123,6 +123,17 @@ request = Lnrpc::WalletBalanceRequest.new()
 client.grpc_client.wallet_balance(request).total_balance
 ```
 
+## Using with BTC Pay Server
+If you have a running BTC Pay Server with LND support, integrating with lnrpc is easy.
+
+- Navigate to the domain associated with your BTC Pay Server
+- Navigate to Services on the Server Settings page
+- Click "see information" for your gRPC Server
+- The link by "More details..." will expose the address and various macaroon hex strings
+- Initialize your client with the options detailed above. BTC Pay Server utilizes LetsEncrypt for trusted TLC       Certificates so set that option to nil.
+
+Don't have a BTC Pay Server? [Setting one up is easy.](https://medium.com/@BtcpayServer/launch-btcpay-server-via-web-interface-and-deploy-full-bitcoin-node-lnd-in-less-than-a-minute-dc8bc6f06a3)
+    
 
 ## Versioning
 
