@@ -13,3 +13,7 @@ lnd.send_payment_sync(payment_request: pay_request)
 
 invoice_res = lnd.add_invoice(value: 1000, memo: 'I :heart: ruby')
 puts invoice_res.payment_request
+
+lnd.subscribe_invoices(settle_index: 1).each do |invoice|
+  puts invoice.payment_request
+end
