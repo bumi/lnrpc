@@ -62,7 +62,7 @@ module Lnrpc
         params  = args[0]
 
         args[0] = params.nil? ? request_class_for(m).new : request_class_for(m).new(params)
-        self.grpc_client.send(m, *args)
+        self.grpc_client.send(m, *args, &block)
       else
         super
       end
