@@ -2,16 +2,16 @@
 
 a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem.
 
-Currently published as [beta release](https://rubygems.org/gems/lnrpc) to rubygems for LND v0.5.2.beta. (see [#Versioning](#Versioning))
-
 
 ## Installation
+
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'lnrpc'
+gem 'lnrpc', '~> 0.6.1'
 ```
+lnrpc follows the lnd versioning, thus it is recommended to specify the exact version you need for your lnd node as dependency (see [#Versioning](#Versioning)).
 
 And then execute:
 
@@ -139,6 +139,8 @@ Don't have a BTC Pay Server? [Setting one up is easy.](https://medium.com/@Btcpa
 
 This gem follows the LND versions and will update the gRPC service definitions accordingly.
 e.g. gem version 0.5.2 includes the gRPC service definitions from LND v0.5.2
+
+see [rubygems](https://rubygems.org/gems/lnrpc) for all available releases.
 
 
 ### Update service definitions
