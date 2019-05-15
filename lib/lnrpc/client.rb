@@ -40,7 +40,7 @@ module Lnrpc
         self.credentials = nil
       end
 
-      unless options.has_key?(:macaroon)
+      if !options.has_key?(:macaroon) && File.exists?(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH))
         options[:macaroon] = ::File.read(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH)).unpack("H*")
       end
       self.macaroon = options[:macaroon]
