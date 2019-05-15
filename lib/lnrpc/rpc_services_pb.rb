@@ -6,6 +6,27 @@ require_relative 'rpc_pb'
 
 module Lnrpc
   module WalletUnlocker
+    # *
+    # Comments in this file will be directly parsed into the API
+    # Documentation as descriptions of the associated method, message, or field.
+    # These descriptions should go right above the definition of the object, and
+    # can be in either block or /// comment format.
+    #
+    # One edge case exists where a // comment followed by a /// comment in the
+    # next line will cause the description not to show up in the documentation. In
+    # that instance, simply separate the two comments with a blank line.
+    #
+    # An RPC method can be matched to an lncli command by placing a line in the
+    # beginning of the description in exactly the following format:
+    # lncli: `methodname`
+    #
+    # Failure to specify the exact name of the command will cause documentation
+    # generation to fail.
+    #
+    # More information on how exactly the gRPC documentation is generated from
+    # this proto file can be found here:
+    # https://github.com/lightninglabs/lightning-api
+    #
     # The WalletUnlocker service is used to set up a wallet password for
     # lnd at first startup, and unlock a previously set up wallet.
     class Service
@@ -74,6 +95,10 @@ module Lnrpc
       # GetTransactions returns a list describing all the known transactions
       # relevant to the wallet.
       rpc :GetTransactions, GetTransactionsRequest, TransactionDetails
+      # * lncli: `estimatefee`
+      # EstimateFee asks the chain backend to estimate the fee rate and total fees
+      # for a transaction that pays to multiple specified outputs.
+      rpc :EstimateFee, EstimateFeeRequest, EstimateFeeResponse
       # * lncli: `sendcoins`
       # SendCoins executes a request to send coins to a particular address. Unlike
       # SendMany, this RPC call only allows creating a single output at a time. If
@@ -81,6 +106,10 @@ module Lnrpc
       # consult its fee model to determine a fee for the default confirmation
       # target.
       rpc :SendCoins, SendCoinsRequest, SendCoinsResponse
+      # * lncli: `listunspent`
+      # ListUnspent returns a list of all utxos spendable by the wallet with a
+      # number of confirmations between the specified minimum and maximum.
+      rpc :ListUnspent, ListUnspentRequest, ListUnspentResponse
       # *
       # SubscribeTransactions creates a uni-directional stream from the server to
       # the client in which any newly discovered transactions relevant to the
@@ -136,6 +165,12 @@ module Lnrpc
       # ListChannels returns a description of all the open channels that this node
       # is a participant in.
       rpc :ListChannels, ListChannelsRequest, ListChannelsResponse
+      # * lncli: `subscribechannelevents`
+      # SubscribeChannelEvents creates a uni-directional stream from the server to
+      # the client in which any updates relevant to the state of the channels are
+      # sent over. Events include new active channels, inactive channels, and closed
+      # channels.
+      rpc :SubscribeChannelEvents, ChannelEventSubscription, stream(ChannelEventUpdate)
       # * lncli: `closedchannels`
       # ClosedChannels returns a description of all the closed channels that
       # this node was a participant in.
@@ -201,10 +236,8 @@ module Lnrpc
       # paginated responses, allowing users to query for specific invoices through
       # their add_index. This can be done by using either the first_index_offset or
       # last_index_offset fields included in the response as the index_offset of the
-      # next request. The reversed flag is set by default in order to paginate
-      # backwards. If you wish to paginate forwards, you must explicitly set the
-      # flag to false. If none of the parameters are specified, then the last 100
-      # invoices will be returned.
+      # next request. By default, the first 100 invoices created will be returned.
+      # Backwards pagination is also supported through the Reversed flag.
       rpc :ListInvoices, ListInvoiceRequest, ListInvoiceResponse
       # * lncli: `lookupinvoice`
       # LookupInvoice attempts to look up an invoice according to its payment hash.
@@ -290,7 +323,7 @@ module Lnrpc
       rpc :UpdateChannelPolicy, PolicyUpdateRequest, PolicyUpdateResponse
       # * lncli: `fwdinghistory`
       # ForwardingHistory allows the caller to query the htlcswitch for a record of
-      # all HTLC's forwarded within the target time range, and integer offset
+      # all HTLCs forwarded within the target time range, and integer offset
       # within that time range. If no time-range is specified, then the first chunk
       # of the past 24 hrs of forwarding history are returned.
       #
@@ -300,6 +333,41 @@ module Lnrpc
       # the index offset of the last entry. The index offset can be provided to the
       # request to allow the caller to skip a series of records.
       rpc :ForwardingHistory, ForwardingHistoryRequest, ForwardingHistoryResponse
+      # * lncli: `exportchanbackup`
+      # ExportChannelBackup attempts to return an encrypted static channel backup
+      # for the target channel identified by it channel point. The backup is
+      # encrypted with a key generated from the aezeed seed of the user. The
+      # returned backup can either be restored using the RestoreChannelBackup
+      # method once lnd is running, or via the InitWallet and UnlockWallet methods
+      # from the WalletUnlocker service.
+      rpc :ExportChannelBackup, ExportChannelBackupRequest, ChannelBackup
+      # *
+      # ExportAllChannelBackups returns static channel backups for all existing
+      # channels known to lnd. A set of regular singular static channel backups for
+      # each channel are returned. Additionally, a multi-channel backup is returned
+      # as well, which contains a single encrypted blob containing the backups of
+      # each channel.
+      rpc :ExportAllChannelBackups, ChanBackupExportRequest, ChanBackupSnapshot
+      # *
+      # VerifyChanBackup allows a caller to verify the integrity of a channel backup
+      # snapshot. This method will accept either a packed Single or a packed Multi.
+      # Specifying both will result in an error.
+      rpc :VerifyChanBackup, ChanBackupSnapshot, VerifyChanBackupResponse
+      # * lncli: `restorechanbackup`
+      # RestoreChannelBackups accepts a set of singular channel backups, or a
+      # single encrypted multi-chan backup and attempts to recover any funds
+      # remaining within the channel. If we are able to unpack the backup, then the
+      # new channel will be shown under listchannels, as well as pending channels.
+      rpc :RestoreChannelBackups, RestoreChanBackupRequest, RestoreBackupResponse
+      # *
+      # SubscribeChannelBackups allows a client to sub-subscribe to the most up to
+      # date information concerning the state of all channel backups. Each time a
+      # new channel is added, we return the new set of channels, along with a
+      # multi-chan backup containing the backup info for all channels. Each time a
+      # channel is closed, we send a new update, which contains new new chan back
+      # ups, but the updated set of encrypted multi-chan backups with the closed
+      # channel(s) removed.
+      rpc :SubscribeChannelBackups, ChannelBackupSubscription, stream(ChanBackupSnapshot)
     end
 
     Stub = Service.rpc_stub_class
