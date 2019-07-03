@@ -1,10 +1,10 @@
 # Lnrpc - ruby gRPC client for LND
+[![Gem Version](https://badge.fury.io/rb/lnrpc.svg)](https://badge.fury.io/rb/lnrpc)
 
 a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem.
 
 
 ## Installation
-
 
 Add this line to your application's Gemfile:
 

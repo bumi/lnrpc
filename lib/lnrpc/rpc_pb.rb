@@ -52,6 +52,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :time_stamp, :int64, 6
     optional :total_fees, :int64, 7
     repeated :dest_addresses, :string, 8
+    optional :raw_tx_hex, :string, 9
   end
   add_message "lnrpc.GetTransactionsRequest" do
   end
@@ -85,7 +86,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.SendToRouteRequest" do
     optional :payment_hash, :bytes, 1
     optional :payment_hash_string, :string, 2
-    repeated :routes, :message, 3, "lnrpc.Route"
     optional :route, :message, 4, "lnrpc.Route"
   end
   add_message "lnrpc.ChannelPoint" do
@@ -273,6 +273,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :version, :string, 14
     optional :num_inactive_channels, :uint32, 15
     repeated :chains, :message, 16, "lnrpc.Chain"
+    optional :color, :string, 17
   end
   add_message "lnrpc.Chain" do
     optional :chain, :string, 1
@@ -406,7 +407,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.QueryRoutesRequest" do
     optional :pub_key, :string, 1
     optional :amt, :int64, 2
-    optional :num_routes, :int32, 3
     optional :final_cltv_delta, :int32, 4
     optional :fee_limit, :message, 5, "lnrpc.FeeLimit"
     repeated :ignored_nodes, :bytes, 6
@@ -440,11 +440,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "lnrpc.NodeInfoRequest" do
     optional :pub_key, :string, 1
+    optional :include_channels, :bool, 2
   end
   add_message "lnrpc.NodeInfo" do
     optional :node, :message, 1, "lnrpc.LightningNode"
     optional :num_channels, :uint32, 2
     optional :total_capacity, :int64, 3
+    repeated :channels, :message, 4, "lnrpc.ChannelEdge"
   end
   add_message "lnrpc.LightningNode" do
     optional :last_update, :uint32, 1
@@ -515,6 +517,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :identity_key, :string, 2
     optional :global_features, :bytes, 3
     optional :alias, :string, 4
+    optional :color, :string, 5
   end
   add_message "lnrpc.ChannelEdgeUpdate" do
     optional :chan_id, :uint64, 1
@@ -602,8 +605,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :payment_preimage, :string, 6
     optional :value_sat, :int64, 7
     optional :value_msat, :int64, 8
+    optional :payment_request, :string, 9
+    optional :status, :enum, 10, "lnrpc.Payment.PaymentStatus"
+  end
+  add_enum "lnrpc.Payment.PaymentStatus" do
+    value :UNKNOWN, 0
+    value :IN_FLIGHT, 1
+    value :SUCCEEDED, 2
+    value :FAILED, 3
   end
   add_message "lnrpc.ListPaymentsRequest" do
+    optional :include_incomplete, :bool, 1
   end
   add_message "lnrpc.ListPaymentsResponse" do
     repeated :payments, :message, 1, "lnrpc.Payment"
@@ -832,6 +844,7 @@ module Lnrpc
   ListInvoiceResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListInvoiceResponse").msgclass
   InvoiceSubscription = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.InvoiceSubscription").msgclass
   Payment = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Payment").msgclass
+  Payment::PaymentStatus = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Payment.PaymentStatus").enummodule
   ListPaymentsRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListPaymentsRequest").msgclass
   ListPaymentsResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListPaymentsResponse").msgclass
   DeleteAllPaymentsRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.DeleteAllPaymentsRequest").msgclass

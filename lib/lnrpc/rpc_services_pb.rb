@@ -287,7 +287,7 @@ module Lnrpc
       # * lncli: `queryroutes`
       # QueryRoutes attempts to query the daemon's Channel Router for a possible
       # route to a target destination capable of carrying a specific amount of
-      # satoshis. The retuned route contains the full details required to craft and
+      # satoshis. The returned route contains the full details required to craft and
       # send an HTLC, also including the necessary information that should be
       # present within the Sphinx packet encapsulated within the HTLC.
       rpc :QueryRoutes, QueryRoutesRequest, QueryRoutesResponse
