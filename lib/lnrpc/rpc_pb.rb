@@ -194,6 +194,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :private, :bool, 17
     optional :initiator, :bool, 18
     optional :chan_status_flags, :string, 19
+    optional :local_chan_reserve_sat, :int64, 20
+    optional :remote_chan_reserve_sat, :int64, 21
   end
   add_message "lnrpc.ListChannelsRequest" do
     optional :active_only, :bool, 1
@@ -349,6 +351,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :capacity, :int64, 3
     optional :local_balance, :int64, 4
     optional :remote_balance, :int64, 5
+    optional :local_chan_reserve_sat, :int64, 6
+    optional :remote_chan_reserve_sat, :int64, 7
   end
   add_message "lnrpc.PendingChannelsResponse.PendingOpenChannel" do
     optional :channel, :message, 1, "lnrpc.PendingChannelsResponse.PendingChannel"
@@ -412,6 +416,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     repeated :ignored_nodes, :bytes, 6
     repeated :ignored_edges, :message, 7, "lnrpc.EdgeLocator"
     optional :source_pub_key, :string, 8
+    optional :use_mission_control, :bool, 9
   end
   add_message "lnrpc.EdgeLocator" do
     optional :channel_id, :uint64, 1
@@ -466,6 +471,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :fee_rate_milli_msat, :int64, 4
     optional :disabled, :bool, 5
     optional :max_htlc_msat, :uint64, 6
+    optional :last_update, :uint32, 7
   end
   add_message "lnrpc.ChannelEdge" do
     optional :channel_id, :uint64, 1
@@ -500,6 +506,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :min_channel_size, :int64, 8
     optional :max_channel_size, :int64, 9
     optional :median_channel_size_sat, :int64, 10
+    optional :num_zombie_chans, :uint64, 11
   end
   add_message "lnrpc.StopRequest" do
   end
@@ -607,6 +614,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :value_msat, :int64, 8
     optional :payment_request, :string, 9
     optional :status, :enum, 10, "lnrpc.Payment.PaymentStatus"
+    optional :fee_sat, :int64, 11
+    optional :fee_msat, :int64, 12
   end
   add_enum "lnrpc.Payment.PaymentStatus" do
     value :UNKNOWN, 0
