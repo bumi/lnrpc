@@ -76,6 +76,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :fee_limit, :message, 8, "lnrpc.FeeLimit"
     optional :outgoing_chan_id, :uint64, 9
     optional :cltv_limit, :uint32, 10
+    map :dest_tlv, :uint64, :bytes, 11
   end
   add_message "lnrpc.SendResponse" do
     optional :payment_error, :string, 1
@@ -87,6 +88,25 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :payment_hash, :bytes, 1
     optional :payment_hash_string, :string, 2
     optional :route, :message, 4, "lnrpc.Route"
+  end
+  add_message "lnrpc.ChannelAcceptRequest" do
+    optional :node_pubkey, :bytes, 1
+    optional :chain_hash, :bytes, 2
+    optional :pending_chan_id, :bytes, 3
+    optional :funding_amt, :uint64, 4
+    optional :push_amt, :uint64, 5
+    optional :dust_limit, :uint64, 6
+    optional :max_value_in_flight, :uint64, 7
+    optional :channel_reserve, :uint64, 8
+    optional :min_htlc, :uint64, 9
+    optional :fee_per_kw, :uint64, 10
+    optional :csv_delay, :uint32, 11
+    optional :max_accepted_htlcs, :uint32, 12
+    optional :channel_flags, :uint32, 13
+  end
+  add_message "lnrpc.ChannelAcceptResponse" do
+    optional :accept, :bool, 1
+    optional :pending_chan_id, :bytes, 2
   end
   add_message "lnrpc.ChannelPoint" do
     optional :output_index, :uint32, 3
@@ -196,6 +216,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :chan_status_flags, :string, 19
     optional :local_chan_reserve_sat, :int64, 20
     optional :remote_chan_reserve_sat, :int64, 21
+    optional :static_remote_key, :bool, 22
   end
   add_message "lnrpc.ListChannelsRequest" do
     optional :active_only, :bool, 1
@@ -276,6 +297,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :num_inactive_channels, :uint32, 15
     repeated :chains, :message, 16, "lnrpc.Chain"
     optional :color, :string, 17
+    optional :synced_to_graph, :bool, 18
   end
   add_message "lnrpc.Chain" do
     optional :chain, :string, 1
@@ -417,6 +439,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     repeated :ignored_edges, :message, 7, "lnrpc.EdgeLocator"
     optional :source_pub_key, :string, 8
     optional :use_mission_control, :bool, 9
+    repeated :ignored_pairs, :message, 10, "lnrpc.NodePair"
+    map :dest_tlv, :uint64, :bytes, 11
+  end
+  add_message "lnrpc.NodePair" do
+    optional :from, :bytes, 1
+    optional :to, :bytes, 2
   end
   add_message "lnrpc.EdgeLocator" do
     optional :channel_id, :uint64, 1
@@ -424,6 +452,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "lnrpc.QueryRoutesResponse" do
     repeated :routes, :message, 1, "lnrpc.Route"
+    optional :success_prob, :double, 2
   end
   add_message "lnrpc.Hop" do
     optional :chan_id, :uint64, 1
@@ -434,6 +463,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :amt_to_forward_msat, :int64, 6
     optional :fee_msat, :int64, 7
     optional :pub_key, :string, 8
+    optional :tlv_payload, :bool, 9
+    map :tlv_records, :uint64, :bytes, 10
   end
   add_message "lnrpc.Route" do
     optional :total_time_lock, :uint32, 1
@@ -572,12 +603,23 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :amt_paid_sat, :int64, 19
     optional :amt_paid_msat, :int64, 20
     optional :state, :enum, 21, "lnrpc.Invoice.InvoiceState"
+    repeated :htlcs, :message, 22, "lnrpc.InvoiceHTLC"
   end
   add_enum "lnrpc.Invoice.InvoiceState" do
     value :OPEN, 0
     value :SETTLED, 1
     value :CANCELED, 2
     value :ACCEPTED, 3
+  end
+  add_message "lnrpc.InvoiceHTLC" do
+    optional :chan_id, :uint64, 1
+    optional :htlc_index, :uint64, 2
+    optional :amt_msat, :uint64, 3
+    optional :accept_height, :int32, 4
+    optional :accept_time, :int64, 5
+    optional :resolve_time, :int64, 6
+    optional :expiry_height, :int32, 7
+    optional :state, :enum, 8, "lnrpc.InvoiceHTLCState"
   end
   add_message "lnrpc.AddInvoiceResponse" do
     optional :r_hash, :bytes, 1
@@ -678,6 +720,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :base_fee_msat, :int64, 3
     optional :fee_rate, :double, 4
     optional :time_lock_delta, :uint32, 5
+    optional :max_htlc_msat, :uint64, 6
     oneof :scope do
       optional :global, :bool, 1
       optional :chan_point, :message, 2, "lnrpc.ChannelPoint"
@@ -742,6 +785,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     value :UNUSED_WITNESS_PUBKEY_HASH, 2
     value :UNUSED_NESTED_PUBKEY_HASH, 3
   end
+  add_enum "lnrpc.InvoiceHTLCState" do
+    value :ACCEPTED, 0
+    value :SETTLED, 1
+    value :CANCELLED, 2
+  end
 end
 
 module Lnrpc
@@ -761,6 +809,8 @@ module Lnrpc
   SendRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.SendRequest").msgclass
   SendResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.SendResponse").msgclass
   SendToRouteRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.SendToRouteRequest").msgclass
+  ChannelAcceptRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelAcceptRequest").msgclass
+  ChannelAcceptResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelAcceptResponse").msgclass
   ChannelPoint = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelPoint").msgclass
   OutPoint = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.OutPoint").msgclass
   LightningAddress = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.LightningAddress").msgclass
@@ -821,6 +871,7 @@ module Lnrpc
   ChannelBalanceRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelBalanceRequest").msgclass
   ChannelBalanceResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelBalanceResponse").msgclass
   QueryRoutesRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.QueryRoutesRequest").msgclass
+  NodePair = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodePair").msgclass
   EdgeLocator = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.EdgeLocator").msgclass
   QueryRoutesResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.QueryRoutesResponse").msgclass
   Hop = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Hop").msgclass
@@ -847,6 +898,7 @@ module Lnrpc
   RouteHint = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.RouteHint").msgclass
   Invoice = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Invoice").msgclass
   Invoice::InvoiceState = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Invoice.InvoiceState").enummodule
+  InvoiceHTLC = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.InvoiceHTLC").msgclass
   AddInvoiceResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AddInvoiceResponse").msgclass
   PaymentHash = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PaymentHash").msgclass
   ListInvoiceRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListInvoiceRequest").msgclass
@@ -883,4 +935,5 @@ module Lnrpc
   ChannelBackupSubscription = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelBackupSubscription").msgclass
   VerifyChanBackupResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.VerifyChanBackupResponse").msgclass
   AddressType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AddressType").enummodule
+  InvoiceHTLCState = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.InvoiceHTLCState").enummodule
 end

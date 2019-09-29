@@ -2,7 +2,7 @@
 # Source: rpc.proto for package 'lnrpc'
 
 require 'grpc'
-require_relative 'rpc_pb'
+require 'rpc_pb'
 
 module Lnrpc
   module WalletUnlocker
@@ -10,19 +10,19 @@ module Lnrpc
     # Comments in this file will be directly parsed into the API
     # Documentation as descriptions of the associated method, message, or field.
     # These descriptions should go right above the definition of the object, and
-    # can be in either block or /// comment format.
-    #
+    # can be in either block or /// comment format. 
+    # 
     # One edge case exists where a // comment followed by a /// comment in the
     # next line will cause the description not to show up in the documentation. In
     # that instance, simply separate the two comments with a blank line.
-    #
+    # 
     # An RPC method can be matched to an lncli command by placing a line in the
     # beginning of the description in exactly the following format:
     # lncli: `methodname`
-    #
+    # 
     # Failure to specify the exact name of the command will cause documentation
     # generation to fail.
-    #
+    # 
     # More information on how exactly the gRPC documentation is generated from
     # this proto file can be found here:
     # https://github.com/lightninglabs/lightning-api
@@ -47,7 +47,7 @@ module Lnrpc
       # method should be used to commit the newly generated seed, and create the
       # wallet.
       rpc :GenSeed, GenSeedRequest, GenSeedResponse
-      # *
+      # * 
       # InitWallet is used when lnd is starting up for the first time to fully
       # initialize the daemon and its internal wallet. At the very least a wallet
       # password must be provided. This will be used to encrypt sensitive material
@@ -165,7 +165,7 @@ module Lnrpc
       # ListChannels returns a description of all the open channels that this node
       # is a participant in.
       rpc :ListChannels, ListChannelsRequest, ListChannelsResponse
-      # * lncli: `subscribechannelevents`
+      # *
       # SubscribeChannelEvents creates a uni-directional stream from the server to
       # the client in which any updates relevant to the state of the channels are
       # sent over. Events include new active channels, inactive channels, and closed
@@ -188,6 +188,13 @@ module Lnrpc
       # rate to us for the funding transaction. If neither are specified, then a
       # lax block confirmation target is used.
       rpc :OpenChannel, OpenChannelRequest, stream(OpenStatusUpdate)
+      # *
+      # ChannelAcceptor dispatches a bi-directional streaming RPC in which
+      # OpenChannel requests are sent to the client and the client responds with
+      # a boolean that tells LND whether or not to accept the channel. This allows
+      # node operators to specify their own criteria for accepting inbound channels
+      # through a single persistent connection.
+      rpc :ChannelAcceptor, stream(ChannelAcceptResponse), stream(ChannelAcceptRequest)
       # * lncli: `closechannel`
       # CloseChannel attempts to close an active channel identified by its channel
       # outpoint (ChannelPoint). The actions of this method can additionally be
