@@ -440,7 +440,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :source_pub_key, :string, 8
     optional :use_mission_control, :bool, 9
     repeated :ignored_pairs, :message, 10, "lnrpc.NodePair"
-    map :dest_tlv, :uint64, :bytes, 11
+    optional :cltv_limit, :uint32, 11
   end
   add_message "lnrpc.NodePair" do
     optional :from, :bytes, 1
@@ -464,7 +464,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :fee_msat, :int64, 7
     optional :pub_key, :string, 8
     optional :tlv_payload, :bool, 9
-    map :tlv_records, :uint64, :bytes, 10
   end
   add_message "lnrpc.Route" do
     optional :total_time_lock, :uint32, 1
@@ -788,7 +787,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_enum "lnrpc.InvoiceHTLCState" do
     value :ACCEPTED, 0
     value :SETTLED, 1
-    value :CANCELLED, 2
+    value :CANCELED, 2
   end
 end
 
