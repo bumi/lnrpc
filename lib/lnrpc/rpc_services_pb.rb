@@ -148,6 +148,11 @@ module Lnrpc
       # * lncli: `listpeers`
       # ListPeers returns a verbose listing of all currently active peers.
       rpc :ListPeers, ListPeersRequest, ListPeersResponse
+      # *
+      # SubscribePeerEvents creates a uni-directional stream from the server to
+      # the client in which any events relevant to the state of peers are sent
+      # over. Events include peers going online and offline.
+      rpc :SubscribePeerEvents, PeerEventSubscription, stream(PeerEvent)
       # * lncli: `getinfo`
       # GetInfo returns general information concerning the lightning node including
       # it's identity pubkey, alias, the chains it is connected to, and information
@@ -186,8 +191,21 @@ module Lnrpc
       # request to a remote peer. Users are able to specify a target number of
       # blocks that the funding transaction should be confirmed in, or a manual fee
       # rate to us for the funding transaction. If neither are specified, then a
-      # lax block confirmation target is used.
+      # lax block confirmation target is used. Each OpenStatusUpdate will return
+      # the pending channel ID of the in-progress channel. Depending on the
+      # arguments specified in the OpenChannelRequest, this pending channel ID can
+      # then be used to manually progress the channel funding flow.
       rpc :OpenChannel, OpenChannelRequest, stream(OpenStatusUpdate)
+      # *
+      # FundingStateStep is an advanced funding related call that allows the caller
+      # to either execute some preparatory steps for a funding workflow, or
+      # manually progress a funding workflow. The primary way a funding flow is
+      # identified is via its pending channel ID. As an example, this method can be
+      # used to specify that we're expecting a funding flow for a particular
+      # pending channel ID, for which we need to use specific parameters.
+      # Alternatively, this can be used to interactively drive PSBT signing for
+      # funding for partially complete funding transactions.
+      rpc :FundingStateStep, FundingTransitionMsg, FundingStateStepResp
       # *
       # ChannelAcceptor dispatches a bi-directional streaming RPC in which
       # OpenChannel requests are sent to the client and the client responds with
@@ -256,9 +274,9 @@ module Lnrpc
       # notifying the client of newly added/settled invoices. The caller can
       # optionally specify the add_index and/or the settle_index. If the add_index
       # is specified, then we'll first start by sending add invoice events for all
-      # invoices with an add_index greater than the specified value.  If the
+      # invoices with an add_index greater than the specified value. If the
       # settle_index is specified, the next, we'll send out all settle events for
-      # invoices with a settle_index greater than the specified value.  One or both
+      # invoices with a settle_index greater than the specified value. One or both
       # of these fields can be set. If no fields are set, then we'll only send out
       # the latest add/settle events.
       rpc :SubscribeInvoices, InvoiceSubscription, stream(Invoice)
@@ -277,7 +295,7 @@ module Lnrpc
       # DescribeGraph returns a description of the latest graph state from the
       # point of view of the node. The graph information is partitioned into two
       # components: all the nodes/vertexes, and all the edges that connect the
-      # vertexes themselves.  As this is a directed graph, the edges also contain
+      # vertexes themselves. As this is a directed graph, the edges also contain
       # the node directional specific routing policy which includes: the time lock
       # delta, fee information, etc.
       rpc :DescribeGraph, ChannelGraphRequest, ChannelGraph
@@ -336,7 +354,7 @@ module Lnrpc
       #
       # A list of forwarding events are returned. The size of each forwarding event
       # is 40 bytes, and the max message size able to be returned in gRPC is 4 MiB.
-      # As a result each message can only contain 50k entries.  Each response has
+      # As a result each message can only contain 50k entries. Each response has
       # the index offset of the last entry. The index offset can be provided to the
       # request to allow the caller to skip a series of records.
       rpc :ForwardingHistory, ForwardingHistoryRequest, ForwardingHistoryResponse
@@ -375,6 +393,11 @@ module Lnrpc
       # ups, but the updated set of encrypted multi-chan backups with the closed
       # channel(s) removed.
       rpc :SubscribeChannelBackups, ChannelBackupSubscription, stream(ChanBackupSnapshot)
+      # * lncli: `bakemacaroon`
+      # BakeMacaroon allows the creation of a new macaroon with custom read and
+      # write permissions. No first-party caveats are added since this can be done
+      # offline.
+      rpc :BakeMacaroon, BakeMacaroonRequest, BakeMacaroonResponse
     end
 
     Stub = Service.rpc_stub_class
