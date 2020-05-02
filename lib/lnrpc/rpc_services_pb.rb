@@ -229,10 +229,11 @@ module Lnrpc
       # when in debug builds of lnd.
       rpc :AbandonChannel, AbandonChannelRequest, AbandonChannelResponse
       # * lncli: `sendpayment`
-      # SendPayment dispatches a bi-directional streaming RPC for sending payments
-      # through the Lightning Network. A single RPC invocation creates a persistent
-      # bi-directional stream allowing clients to rapidly send payments through the
-      # Lightning Network with a single persistent connection.
+      # Deprecated, use routerrpc.SendPayment. SendPayment dispatches a
+      # bi-directional streaming RPC for sending payments through the Lightning
+      # Network. A single RPC invocation creates a persistent bi-directional
+      # stream allowing clients to rapidly send payments through the Lightning
+      # Network with a single persistent connection.
       rpc :SendPayment, stream(SendRequest), stream(SendResponse)
       # *
       # SendPaymentSync is the synchronous non-streaming version of SendPayment.
@@ -299,6 +300,10 @@ module Lnrpc
       # the node directional specific routing policy which includes: the time lock
       # delta, fee information, etc.
       rpc :DescribeGraph, ChannelGraphRequest, ChannelGraph
+      # * lncli: `getnodemetrics`
+      # GetNodeMetrics returns node metrics calculated from the graph. Currently
+      # the only supported metric is betweenness centrality of individual nodes.
+      rpc :GetNodeMetrics, NodeMetricsRequest, NodeMetricsResponse
       # * lncli: `getchaninfo`
       # GetChanInfo returns the latest authenticated network announcement for the
       # given channel identified by its channel ID: an 8-byte integer which
