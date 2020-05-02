@@ -36,7 +36,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.ChangePasswordResponse" do
   end
   add_message "lnrpc.Utxo" do
-    optional :type, :enum, 1, "lnrpc.AddressType"
+    optional :address_type, :enum, 1, "lnrpc.AddressType"
     optional :address, :string, 2
     optional :amount_sat, :int64, 3
     optional :pk_script, :string, 4
@@ -222,15 +222,19 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :local_chan_reserve_sat, :int64, 20
     optional :remote_chan_reserve_sat, :int64, 21
     optional :static_remote_key, :bool, 22
+    optional :commitment_type, :enum, 26, "lnrpc.CommitmentType"
     optional :lifetime, :int64, 23
     optional :uptime, :int64, 24
     optional :close_address, :string, 25
+    optional :push_amount_sat, :uint64, 27
+    optional :thaw_height, :uint32, 28
   end
   add_message "lnrpc.ListChannelsRequest" do
     optional :active_only, :bool, 1
     optional :inactive_only, :bool, 2
     optional :public_only, :bool, 3
     optional :private_only, :bool, 4
+    optional :peer, :bytes, 5
   end
   add_message "lnrpc.ListChannelsResponse" do
     repeated :channels, :message, 11, "lnrpc.Channel"
@@ -246,6 +250,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :settled_balance, :int64, 8
     optional :time_locked_balance, :int64, 9
     optional :close_type, :enum, 10, "lnrpc.ChannelCloseSummary.ClosureType"
+    optional :open_initiator, :enum, 11, "lnrpc.Initiator"
+    optional :close_initiator, :enum, 12, "lnrpc.Initiator"
   end
   add_enum "lnrpc.ChannelCloseSummary.ClosureType" do
     value :COOPERATIVE_CLOSE, 0
@@ -277,13 +283,19 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :ping_time, :int64, 9
     optional :sync_type, :enum, 10, "lnrpc.Peer.SyncType"
     map :features, :uint32, :message, 11, "lnrpc.Feature"
+    repeated :errors, :message, 12, "lnrpc.TimestampedError"
   end
   add_enum "lnrpc.Peer.SyncType" do
     value :UNKNOWN_SYNC, 0
     value :ACTIVE_SYNC, 1
     value :PASSIVE_SYNC, 2
   end
+  add_message "lnrpc.TimestampedError" do
+    optional :timestamp, :uint64, 1
+    optional :error, :string, 2
+  end
   add_message "lnrpc.ListPeersRequest" do
+    optional :latest_error, :bool, 1
   end
   add_message "lnrpc.ListPeersResponse" do
     repeated :peers, :message, 1, "lnrpc.Peer"
@@ -302,6 +314,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "lnrpc.GetInfoResponse" do
     optional :version, :string, 14
+    optional :commit_hash, :string, 20
     optional :identity_pubkey, :string, 1
     optional :alias, :string, 2
     optional :color, :string, 17
@@ -352,6 +365,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :txid, :bytes, 1
     optional :output_index, :uint32, 2
   end
+  add_message "lnrpc.ReadyForPsbtFunding" do
+    optional :funding_address, :string, 1
+    optional :funding_amount, :int64, 2
+    optional :psbt, :bytes, 3
+  end
   add_message "lnrpc.OpenChannelRequest" do
     optional :node_pubkey, :bytes, 2
     optional :node_pubkey_string, :string, 3
@@ -372,6 +390,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     oneof :update do
       optional :chan_pending, :message, 1, "lnrpc.PendingUpdate"
       optional :chan_open, :message, 3, "lnrpc.ChannelOpenUpdate"
+      optional :psbt_fund, :message, 5, "lnrpc.ReadyForPsbtFunding"
     end
   end
   add_message "lnrpc.KeyLocator" do
@@ -388,19 +407,35 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :local_key, :message, 3, "lnrpc.KeyDescriptor"
     optional :remote_key, :bytes, 4
     optional :pending_chan_id, :bytes, 5
+    optional :thaw_height, :uint32, 6
+  end
+  add_message "lnrpc.PsbtShim" do
+    optional :pending_chan_id, :bytes, 1
+    optional :base_psbt, :bytes, 2
   end
   add_message "lnrpc.FundingShim" do
     oneof :shim do
       optional :chan_point_shim, :message, 1, "lnrpc.ChanPointShim"
+      optional :psbt_shim, :message, 2, "lnrpc.PsbtShim"
     end
   end
   add_message "lnrpc.FundingShimCancel" do
     optional :pending_chan_id, :bytes, 1
   end
+  add_message "lnrpc.FundingPsbtVerify" do
+    optional :funded_psbt, :bytes, 1
+    optional :pending_chan_id, :bytes, 2
+  end
+  add_message "lnrpc.FundingPsbtFinalize" do
+    optional :signed_psbt, :bytes, 1
+    optional :pending_chan_id, :bytes, 2
+  end
   add_message "lnrpc.FundingTransitionMsg" do
     oneof :trigger do
       optional :shim_register, :message, 1, "lnrpc.FundingShim"
       optional :shim_cancel, :message, 2, "lnrpc.FundingShimCancel"
+      optional :psbt_verify, :message, 3, "lnrpc.FundingPsbtVerify"
+      optional :psbt_finalize, :message, 4, "lnrpc.FundingPsbtFinalize"
     end
   end
   add_message "lnrpc.FundingStateStepResp" do
@@ -430,6 +465,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :remote_balance, :int64, 5
     optional :local_chan_reserve_sat, :int64, 6
     optional :remote_chan_reserve_sat, :int64, 7
+    optional :initiator, :enum, 8, "lnrpc.Initiator"
+    optional :commitment_type, :enum, 9, "lnrpc.CommitmentType"
   end
   add_message "lnrpc.PendingChannelsResponse.PendingOpenChannel" do
     optional :channel, :message, 1, "lnrpc.PendingChannelsResponse.PendingChannel"
@@ -441,6 +478,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.PendingChannelsResponse.WaitingCloseChannel" do
     optional :channel, :message, 1, "lnrpc.PendingChannelsResponse.PendingChannel"
     optional :limbo_balance, :int64, 2
+    optional :commitments, :message, 3, "lnrpc.PendingChannelsResponse.Commitments"
+  end
+  add_message "lnrpc.PendingChannelsResponse.Commitments" do
+    optional :local_txid, :string, 1
+    optional :remote_txid, :string, 2
+    optional :remote_pending_txid, :string, 3
+    optional :local_commit_fee_sat, :uint64, 4
+    optional :remote_commit_fee_sat, :uint64, 5
+    optional :remote_pending_commit_fee_sat, :uint64, 6
   end
   add_message "lnrpc.PendingChannelsResponse.ClosedChannel" do
     optional :channel, :message, 1, "lnrpc.PendingChannelsResponse.PendingChannel"
@@ -454,6 +500,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :blocks_til_maturity, :int32, 5
     optional :recovered_balance, :int64, 6
     repeated :pending_htlcs, :message, 8, "lnrpc.PendingHTLC"
+    optional :anchor, :enum, 9, "lnrpc.PendingChannelsResponse.ForceClosedChannel.AnchorState"
+  end
+  add_enum "lnrpc.PendingChannelsResponse.ForceClosedChannel.AnchorState" do
+    value :LIMBO, 0
+    value :RECOVERED, 1
+    value :LOST, 2
   end
   add_message "lnrpc.ChannelEventSubscription" do
   end
@@ -464,6 +516,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :closed_channel, :message, 2, "lnrpc.ChannelCloseSummary"
       optional :active_channel, :message, 3, "lnrpc.ChannelPoint"
       optional :inactive_channel, :message, 4, "lnrpc.ChannelPoint"
+      optional :pending_open_channel, :message, 6, "lnrpc.PendingUpdate"
     end
   end
   add_enum "lnrpc.ChannelEventUpdate.UpdateType" do
@@ -471,6 +524,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     value :CLOSED_CHANNEL, 1
     value :ACTIVE_CHANNEL, 2
     value :INACTIVE_CHANNEL, 3
+    value :PENDING_OPEN_CHANNEL, 4
   end
   add_message "lnrpc.WalletBalanceRequest" do
   end
@@ -587,6 +641,16 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.ChannelGraph" do
     repeated :nodes, :message, 1, "lnrpc.LightningNode"
     repeated :edges, :message, 2, "lnrpc.ChannelEdge"
+  end
+  add_message "lnrpc.NodeMetricsRequest" do
+    repeated :types, :enum, 1, "lnrpc.NodeMetricType"
+  end
+  add_message "lnrpc.NodeMetricsResponse" do
+    map :betweenness_centrality, :string, :message, 1, "lnrpc.FloatMetric"
+  end
+  add_message "lnrpc.FloatMetric" do
+    optional :value, :double, 1
+    optional :normalized_value, :double, 2
   end
   add_message "lnrpc.ChanInfoRequest" do
     optional :chan_id, :uint64, 1
@@ -720,7 +784,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :payment_hash, :string, 1
     optional :value, :int64, 2
     optional :creation_date, :int64, 3
-    repeated :path, :string, 4
     optional :fee, :int64, 5
     optional :payment_preimage, :string, 6
     optional :value_sat, :int64, 7
@@ -731,6 +794,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :fee_msat, :int64, 12
     optional :creation_time_ns, :int64, 13
     repeated :htlcs, :message, 14, "lnrpc.HTLCAttempt"
+    optional :payment_index, :uint64, 15
+    optional :failure_reason, :enum, 16, "lnrpc.PaymentFailureReason"
   end
   add_enum "lnrpc.Payment.PaymentStatus" do
     value :UNKNOWN, 0
@@ -743,6 +808,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :route, :message, 2, "lnrpc.Route"
     optional :attempt_time_ns, :int64, 3
     optional :resolve_time_ns, :int64, 4
+    optional :failure, :message, 5, "lnrpc.Failure"
   end
   add_enum "lnrpc.HTLCAttempt.HTLCStatus" do
     value :IN_FLIGHT, 0
@@ -751,9 +817,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
   add_message "lnrpc.ListPaymentsRequest" do
     optional :include_incomplete, :bool, 1
+    optional :index_offset, :uint64, 2
+    optional :max_payments, :uint64, 3
+    optional :reversed, :bool, 4
   end
   add_message "lnrpc.ListPaymentsResponse" do
     repeated :payments, :message, 1, "lnrpc.Payment"
+    optional :first_index_offset, :uint64, 2
+    optional :last_index_offset, :uint64, 3
   end
   add_message "lnrpc.DeleteAllPaymentsRequest" do
   end
@@ -797,7 +868,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.FeeReportRequest" do
   end
   add_message "lnrpc.ChannelFeeReport" do
-    optional :chan_point, :string, 1
+    optional :chan_id, :uint64, 5
+    optional :channel_point, :string, 1
     optional :base_fee_msat, :int64, 2
     optional :fee_per_mil, :int64, 3
     optional :fee_rate, :double, 4
@@ -885,16 +957,93 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_message "lnrpc.BakeMacaroonResponse" do
     optional :macaroon, :string, 1
   end
+  add_message "lnrpc.Failure" do
+    optional :code, :enum, 1, "lnrpc.Failure.FailureCode"
+    optional :channel_update, :message, 3, "lnrpc.ChannelUpdate"
+    optional :htlc_msat, :uint64, 4
+    optional :onion_sha_256, :bytes, 5
+    optional :cltv_expiry, :uint32, 6
+    optional :flags, :uint32, 7
+    optional :failure_source_index, :uint32, 8
+    optional :height, :uint32, 9
+  end
+  add_enum "lnrpc.Failure.FailureCode" do
+    value :RESERVED, 0
+    value :INCORRECT_OR_UNKNOWN_PAYMENT_DETAILS, 1
+    value :INCORRECT_PAYMENT_AMOUNT, 2
+    value :FINAL_INCORRECT_CLTV_EXPIRY, 3
+    value :FINAL_INCORRECT_HTLC_AMOUNT, 4
+    value :FINAL_EXPIRY_TOO_SOON, 5
+    value :INVALID_REALM, 6
+    value :EXPIRY_TOO_SOON, 7
+    value :INVALID_ONION_VERSION, 8
+    value :INVALID_ONION_HMAC, 9
+    value :INVALID_ONION_KEY, 10
+    value :AMOUNT_BELOW_MINIMUM, 11
+    value :FEE_INSUFFICIENT, 12
+    value :INCORRECT_CLTV_EXPIRY, 13
+    value :CHANNEL_DISABLED, 14
+    value :TEMPORARY_CHANNEL_FAILURE, 15
+    value :REQUIRED_NODE_FEATURE_MISSING, 16
+    value :REQUIRED_CHANNEL_FEATURE_MISSING, 17
+    value :UNKNOWN_NEXT_PEER, 18
+    value :TEMPORARY_NODE_FAILURE, 19
+    value :PERMANENT_NODE_FAILURE, 20
+    value :PERMANENT_CHANNEL_FAILURE, 21
+    value :EXPIRY_TOO_FAR, 22
+    value :MPP_TIMEOUT, 23
+    value :INTERNAL_FAILURE, 997
+    value :UNKNOWN_FAILURE, 998
+    value :UNREADABLE_FAILURE, 999
+  end
+  add_message "lnrpc.ChannelUpdate" do
+    optional :signature, :bytes, 1
+    optional :chain_hash, :bytes, 2
+    optional :chan_id, :uint64, 3
+    optional :timestamp, :uint32, 4
+    optional :message_flags, :uint32, 10
+    optional :channel_flags, :uint32, 5
+    optional :time_lock_delta, :uint32, 6
+    optional :htlc_minimum_msat, :uint64, 7
+    optional :base_fee, :uint32, 8
+    optional :fee_rate, :uint32, 9
+    optional :htlc_maximum_msat, :uint64, 11
+    optional :extra_opaque_data, :bytes, 12
+  end
   add_enum "lnrpc.AddressType" do
     value :WITNESS_PUBKEY_HASH, 0
     value :NESTED_PUBKEY_HASH, 1
     value :UNUSED_WITNESS_PUBKEY_HASH, 2
     value :UNUSED_NESTED_PUBKEY_HASH, 3
   end
+  add_enum "lnrpc.CommitmentType" do
+    value :LEGACY, 0
+    value :STATIC_REMOTE_KEY, 1
+    value :ANCHORS, 2
+    value :UNKNOWN_COMMITMENT_TYPE, 999
+  end
+  add_enum "lnrpc.Initiator" do
+    value :INITIATOR_UNKNOWN, 0
+    value :INITIATOR_LOCAL, 1
+    value :INITIATOR_REMOTE, 2
+    value :INITIATOR_BOTH, 3
+  end
+  add_enum "lnrpc.NodeMetricType" do
+    value :UNKNOWN, 0
+    value :BETWEENNESS_CENTRALITY, 1
+  end
   add_enum "lnrpc.InvoiceHTLCState" do
     value :ACCEPTED, 0
     value :SETTLED, 1
     value :CANCELED, 2
+  end
+  add_enum "lnrpc.PaymentFailureReason" do
+    value :FAILURE_REASON_NONE, 0
+    value :FAILURE_REASON_TIMEOUT, 1
+    value :FAILURE_REASON_NO_ROUTE, 2
+    value :FAILURE_REASON_ERROR, 3
+    value :FAILURE_REASON_INCORRECT_PAYMENT_DETAILS, 4
+    value :FAILURE_REASON_INSUFFICIENT_BALANCE, 5
   end
   add_enum "lnrpc.FeatureBit" do
     value :DATALOSS_PROTECT_REQ, 0
@@ -967,6 +1116,7 @@ module Lnrpc
   ClosedChannelsResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ClosedChannelsResponse").msgclass
   Peer = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Peer").msgclass
   Peer::SyncType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Peer.SyncType").enummodule
+  TimestampedError = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.TimestampedError").msgclass
   ListPeersRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListPeersRequest").msgclass
   ListPeersResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListPeersResponse").msgclass
   PeerEventSubscription = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PeerEventSubscription").msgclass
@@ -981,13 +1131,17 @@ module Lnrpc
   CloseChannelRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.CloseChannelRequest").msgclass
   CloseStatusUpdate = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.CloseStatusUpdate").msgclass
   PendingUpdate = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingUpdate").msgclass
+  ReadyForPsbtFunding = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ReadyForPsbtFunding").msgclass
   OpenChannelRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.OpenChannelRequest").msgclass
   OpenStatusUpdate = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.OpenStatusUpdate").msgclass
   KeyLocator = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.KeyLocator").msgclass
   KeyDescriptor = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.KeyDescriptor").msgclass
   ChanPointShim = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChanPointShim").msgclass
+  PsbtShim = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PsbtShim").msgclass
   FundingShim = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingShim").msgclass
   FundingShimCancel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingShimCancel").msgclass
+  FundingPsbtVerify = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingPsbtVerify").msgclass
+  FundingPsbtFinalize = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingPsbtFinalize").msgclass
   FundingTransitionMsg = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingTransitionMsg").msgclass
   FundingStateStepResp = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FundingStateStepResp").msgclass
   PendingHTLC = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingHTLC").msgclass
@@ -996,8 +1150,10 @@ module Lnrpc
   PendingChannelsResponse::PendingChannel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.PendingChannel").msgclass
   PendingChannelsResponse::PendingOpenChannel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.PendingOpenChannel").msgclass
   PendingChannelsResponse::WaitingCloseChannel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.WaitingCloseChannel").msgclass
+  PendingChannelsResponse::Commitments = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.Commitments").msgclass
   PendingChannelsResponse::ClosedChannel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.ClosedChannel").msgclass
   PendingChannelsResponse::ForceClosedChannel = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.ForceClosedChannel").msgclass
+  PendingChannelsResponse::ForceClosedChannel::AnchorState = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PendingChannelsResponse.ForceClosedChannel.AnchorState").enummodule
   ChannelEventSubscription = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventSubscription").msgclass
   ChannelEventUpdate = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventUpdate").msgclass
   ChannelEventUpdate::UpdateType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventUpdate.UpdateType").enummodule
@@ -1020,6 +1176,9 @@ module Lnrpc
   ChannelEdge = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEdge").msgclass
   ChannelGraphRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelGraphRequest").msgclass
   ChannelGraph = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelGraph").msgclass
+  NodeMetricsRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodeMetricsRequest").msgclass
+  NodeMetricsResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodeMetricsResponse").msgclass
+  FloatMetric = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FloatMetric").msgclass
   ChanInfoRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChanInfoRequest").msgclass
   NetworkInfoRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NetworkInfoRequest").msgclass
   NetworkInfo = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NetworkInfo").msgclass
@@ -1076,7 +1235,14 @@ module Lnrpc
   MacaroonPermission = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.MacaroonPermission").msgclass
   BakeMacaroonRequest = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.BakeMacaroonRequest").msgclass
   BakeMacaroonResponse = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.BakeMacaroonResponse").msgclass
+  Failure = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Failure").msgclass
+  Failure::FailureCode = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Failure.FailureCode").enummodule
+  ChannelUpdate = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelUpdate").msgclass
   AddressType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AddressType").enummodule
+  CommitmentType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.CommitmentType").enummodule
+  Initiator = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Initiator").enummodule
+  NodeMetricType = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodeMetricType").enummodule
   InvoiceHTLCState = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.InvoiceHTLCState").enummodule
+  PaymentFailureReason = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PaymentFailureReason").enummodule
   FeatureBit = Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.FeatureBit").enummodule
 end
