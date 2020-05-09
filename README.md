@@ -3,7 +3,6 @@
 
 a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem.
 
-
 ## Installation
 
 Note: there is still an GRPC/protobuf [issue with Ruby 2.7](https://github.com/protocolbuffers/protobuf/issues/7070). 
@@ -12,7 +11,7 @@ So lnrpc requires Ruby < 2.7.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'lnrpc', '~> 0.7.0'
+gem 'lnrpc', '~> 0.10.0'
 ```
 lnrpc follows the lnd versioning, thus it is recommended to specify the exact version you need for your lnd node as dependency (see [#Versioning](#Versioning)).
 
@@ -33,10 +32,12 @@ This gem makes the gRPC client classes created from the [LND service defintions]
 ```ruby
 require "lnrpc"
 
-# the gRPC client is available under the Lnrpc namespace, e.g.
+# With the changes in LND v.10.0 this load the `Lnrpc` and `Routerrpc` namespace
 
 Lnrpc::Lightning::Stub
+Routerrpc:::Routerrpc::Stub
 Lnrpc::GetInfoRequest
+...
 ```
 
 Learn more about [gRPC](https://grpc.io/) on [gRPC.io](https://grpc.io/).
@@ -58,9 +59,15 @@ client = Lnrpc::Lightning::Stub.new("localhost:10009", GRPC::Core::ChannelCreden
 request = Lnrpc::GetInfoRequest.new
 response = client.get_info(request, { metadata: { macaroon: macaroon } }) #=> Lnrpc::GetInfoResponse
 puts response.alias
+
+router = Routerprc::Router::Stub.new("localhost:10009", GRPC::Core::ChannelCredentials.new(self.credentials))
+...
+
 ```
 
 ### Client wrapper
+
+NOTE: v10.0 has breaking changes!
 
 An optional client wrapper ([Lnrpc::Client](https://github.com/bumi/lnrpc/blob/master/lib/lnrpc/client.rb)) makes
 initializing the gRPC client easier and removes the need for some boilerplate code for calling RPC methods.
@@ -68,7 +75,10 @@ initializing the gRPC client easier and removes the need for some boilerplate co
 #### Example
 ```ruby
 lnd = Lnrpc::Client.new({credentials_path: '/path/to.cert.cls', macaroon_path: '/path/to/admin.macaroon'})
-lnd.get_info
+lnd.lightning # => Lnrpc::Lightning::Stub
+lnd.router # => Lnrpc::Router::Stub
+
+lnd.ligthning.get_info
 ```
 
 Also have a look at [examples.rb](https://github.com/bumi/lnrpc/blob/master/examples.rb)
@@ -99,7 +109,8 @@ lnd = Lnrpc::Client.new({
 })
 
 # the actual gRPC client is available through:
-lnd.grpc_client
+lnd.lightning.grpc
+lnd.router.grpc
 ```
 
 #### Calling RPC methods
@@ -111,19 +122,19 @@ If the first parameter is a hash or blank the corresponding gRPC request object 
 Example:
 
 ```ruby
-client.get_info
+client.lightning.get_info
 # is the same as:
-client.grpc_client.get_info(Lnrpc::GetInfoRequest.new)
+client.lightning.grpc.get_info(Lnrpc::GetInfoRequest.new)
 
-client.list_channels(inactive_only: true)
+client.lightning.list_channels(inactive_only: true)
 # is the same as:
 request = Lnrpc::ListChannelsRequest.new(inactive_only: true)
-client.grpc_client.list_channels(request)
+client.lightning.grpc.list_channels(request)
 
-client.wallet_balance.total_balance
+client.lightning.wallet_balance.total_balance
 # is the same as:
 request = Lnrpc::WalletBalanceRequest.new()
-client.grpc_client.wallet_balance(request).total_balance
+client.lightning.grpc.wallet_balance(request).total_balance
 ```
 
 ## Using with BTC Pay Server
@@ -155,6 +166,14 @@ see [rubygems](https://rubygems.org/gems/lnrpc) for all available releases.
 2. Copy `rpc.proto`, `rpc_pb.rb` and `rpc_services_pb.rb` to `lib`
 
 3. Update `rpc_services_pb.rb` to use `require_relative` to load `rpc_pb`
+
+4. Generate `router_pb.rb` and `router_services_pb.rb`
+
+    $ grpc_tools_ruby_protoc -I/usr/local/include -I. -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis -I$GOPATH/src/github.com/lightningnetwork/lnd/lnrpc --ruby_out=plugins=grpc,paths=source_relative:. --grpc_out=. router.proto
+
+5. Copy `router.proto`, `router_pb.rb` and `router_services_pb.rb` to `lib`
+
+6. Update `router_services_pb.rb` to use `require_relative` to load `router_pb`
 
 ## Other resources
 
