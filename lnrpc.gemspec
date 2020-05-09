@@ -14,6 +14,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/bumi/lnrpc"
   spec.license       = "MIT"
 
+  spec.metadata['funding'] = 'lightning:02ad33d99d0bb3bf3bb8ec8e089cbefa8fd7de23a13cfa59aec9af9730816be76f'
+
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
