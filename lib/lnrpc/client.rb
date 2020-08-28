@@ -27,17 +27,47 @@ module Lnrpc
     end
 
     def lightning
-      @lightning ||= GrpcWrapper.new(Lnrpc::Lightning::Stub.new(address,
-                                                    GRPC::Core::ChannelCredentials.new(credentials),
-                                                    interceptors: [Lnrpc::MacaroonInterceptor.new(macaroon)]
-                                                  ))
+      @lightning ||= grpc_wrapper_for(Lnrpc::Lightning)
+    end
+
+    def autopilot
+      @autopilot ||= grpc_wrapper_for(Autopilotrpc::Autopilot)
+    end
+
+    def chain_notifier
+      @chain_notifier ||= grpc_wrapper_for(Chainrpc::ChainNotifier)
+    end
+
+    def invoices
+      @invoices ||= grpc_wrapper_for(Invoicesrpc::Invoices)
     end
 
     def router
-      @router ||= GrpcWrapper.new(Routerrpc::Router::Stub.new(address,
-                                                    GRPC::Core::ChannelCredentials.new(credentials),
-                                                    interceptors: [Lnrpc::MacaroonInterceptor.new(macaroon)]
-                                                  ))
+      @router ||= grpc_wrapper_for(Routerrpc::Router)
+    end
+
+    def signer
+      @signer ||= grpc_wrapper_for(Signrpc::Signer)
+    end
+
+    def versioner
+      @versioner ||= grpc_wrapper_for(Verrpc::Versioner)
+    end
+
+    def wallet_kit
+      @wallet_kit ||= grpc_wrapper_for(Walletrpc::WalletKit)
+    end
+
+    def wallet_unlocker
+      @wallet_unlocker ||= grpc_wrapper_for(Lnrpc::WalletUnlocker)
+    end
+
+    def watchtower
+      @watchtower ||= grpc_wrapper_for(Watchtowerrpc::Watchtower)
+    end
+
+    def watchtower_client
+      @watchtower_client ||= grpc_wrapper_for(Wtclientrpc::WatchtowerClient)
     end
 
     def keysend(args)
@@ -54,8 +84,19 @@ module Lnrpc
     end
 
     def inspect
-      "#{self.to_s} @address=\"#{self.address}\""
+      "#{self} @address=\"#{address}\""
     end
 
+    private
+
+    def grpc_wrapper_for(grpc_module)
+      stub = grpc_module.const_get(:Stub)
+      service = grpc_module.const_get(:Service)
+      GrpcWrapper.new(service: service,
+                      grpc: stub.new(address,
+                                GRPC::Core::ChannelCredentials.new(credentials),
+                                interceptors: [Lnrpc::MacaroonInterceptor.new(macaroon)]
+                              ))
+    end
   end
 end

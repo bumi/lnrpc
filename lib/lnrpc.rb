@@ -1,6 +1,10 @@
 require 'lnrpc/version'
-require 'lnrpc/rpc_services_pb'
-require 'lnrpc/router_services_pb'
+
+# require GRPC services
+Dir[File.join(File.expand_path(File.dirname(__FILE__)), 'grpc_services/**/*_services_pb.rb')].each do |file|
+  require file
+end
+
 require 'securerandom'
 
 module Lnrpc
