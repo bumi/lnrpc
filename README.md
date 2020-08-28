@@ -159,21 +159,11 @@ see [rubygems](https://rubygems.org/gems/lnrpc) for all available releases.
 
 ### Update service definitions
 
-1. Generate `prc_pb.rb` and `rpc_services_pb.rb`
+The script `generate-grpc-service-files.sh` can be used to generate the GRPC ruby files.
+The files will be stored in `lib/grpc_services`
 
-    $ grpc_tools_ruby_protoc -I/usr/local/include -I. -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis --ruby_out=plugins=grpc,paths=source_relative:. --grpc_out=. rpc.proto
+    $ ./generate-grpc-service-files.sh
 
-2. Copy `rpc.proto`, `rpc_pb.rb` and `rpc_services_pb.rb` to `lib`
-
-3. Update `rpc_services_pb.rb` to use `require_relative` to load `rpc_pb`
-
-4. Generate `router_pb.rb` and `router_services_pb.rb`
-
-    $ grpc_tools_ruby_protoc -I/usr/local/include -I. -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis -I$GOPATH/src/github.com/lightningnetwork/lnd/lnrpc --ruby_out=plugins=grpc,paths=source_relative:. --grpc_out=. router.proto
-
-5. Copy `router.proto`, `router_pb.rb` and `router_services_pb.rb` to `lib`
-
-6. Update `router_services_pb.rb` to use `require_relative` to load `router_pb`
 
 ## Other resources
 
