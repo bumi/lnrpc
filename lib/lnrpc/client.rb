@@ -75,12 +75,12 @@ module Lnrpc
       args[:dest_custom_records][Lnrpc::KEY_SEND_PREIMAGE_TYPE] ||= Lnrpc.create_preimage
       args[:payment_hash] ||= Digest::SHA256.digest(args[:dest_custom_records][Lnrpc::KEY_SEND_PREIMAGE_TYPE])
       args[:timeout_seconds] ||= 60
-      router.send_payment_v2(args)
+      PaymentResponse.new(router.send_payment_v2(args))
     end
 
     def pay(args)
       args[:timeout_seconds] ||= 60
-      router.send_payment_v2(args)
+      PaymentResponse.new(router.send_payment_v2(args))
     end
 
     def inspect
