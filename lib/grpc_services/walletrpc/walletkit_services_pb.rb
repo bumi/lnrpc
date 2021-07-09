@@ -10,7 +10,7 @@ module Walletrpc
     # daemon's wallet.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -19,47 +19,47 @@ module Walletrpc
       #
       # ListUnspent returns a list of all utxos spendable by the wallet with a
       # number of confirmations between the specified minimum and maximum.
-      rpc :ListUnspent, ListUnspentRequest, ListUnspentResponse
+      rpc :ListUnspent, ::Walletrpc::ListUnspentRequest, ::Walletrpc::ListUnspentResponse
       #
       # LeaseOutput locks an output to the given ID, preventing it from being
       # available for any future coin selection attempts. The absolute time of the
       # lock's expiration is returned. The expiration of the lock can be extended by
       # successive invocations of this RPC. Outputs can be unlocked before their
       # expiration through `ReleaseOutput`.
-      rpc :LeaseOutput, LeaseOutputRequest, LeaseOutputResponse
+      rpc :LeaseOutput, ::Walletrpc::LeaseOutputRequest, ::Walletrpc::LeaseOutputResponse
       #
       # ReleaseOutput unlocks an output, allowing it to be available for coin
       # selection if it remains unspent. The ID should match the one used to
       # originally lock the output.
-      rpc :ReleaseOutput, ReleaseOutputRequest, ReleaseOutputResponse
+      rpc :ReleaseOutput, ::Walletrpc::ReleaseOutputRequest, ::Walletrpc::ReleaseOutputResponse
       #
       # DeriveNextKey attempts to derive the *next* key within the key family
       # (account in BIP43) specified. This method should return the next external
       # child within this branch.
-      rpc :DeriveNextKey, KeyReq, Signrpc::KeyDescriptor
+      rpc :DeriveNextKey, ::Walletrpc::KeyReq, ::Signrpc::KeyDescriptor
       #
       # DeriveKey attempts to derive an arbitrary key specified by the passed
       # KeyLocator.
-      rpc :DeriveKey, Signrpc::KeyLocator, Signrpc::KeyDescriptor
+      rpc :DeriveKey, ::Signrpc::KeyLocator, ::Signrpc::KeyDescriptor
       #
       # NextAddr returns the next unused address within the wallet.
-      rpc :NextAddr, AddrRequest, AddrResponse
+      rpc :NextAddr, ::Walletrpc::AddrRequest, ::Walletrpc::AddrResponse
       #
       # PublishTransaction attempts to publish the passed transaction to the
       # network. Once this returns without an error, the wallet will continually
       # attempt to re-broadcast the transaction on start up, until it enters the
       # chain.
-      rpc :PublishTransaction, Transaction, PublishResponse
+      rpc :PublishTransaction, ::Walletrpc::Transaction, ::Walletrpc::PublishResponse
       #
       # SendOutputs is similar to the existing sendmany call in Bitcoind, and
       # allows the caller to create a transaction that sends to several outputs at
       # once. This is ideal when wanting to batch create a set of transactions.
-      rpc :SendOutputs, SendOutputsRequest, SendOutputsResponse
+      rpc :SendOutputs, ::Walletrpc::SendOutputsRequest, ::Walletrpc::SendOutputsResponse
       #
       # EstimateFee attempts to query the internal fee estimator of the wallet to
       # determine the fee (in sat/kw) to attach to a transaction in order to
       # achieve the confirmation target.
-      rpc :EstimateFee, EstimateFeeRequest, EstimateFeeResponse
+      rpc :EstimateFee, ::Walletrpc::EstimateFeeRequest, ::Walletrpc::EstimateFeeResponse
       #
       # PendingSweeps returns lists of on-chain outputs that lnd is currently
       # attempting to sweep within its central batching engine. Outputs with similar
@@ -69,7 +69,7 @@ module Walletrpc
       # NOTE: Some of the fields within PendingSweepsRequest are not guaranteed to
       # remain supported. This is an advanced API that depends on the internals of
       # the UtxoSweeper, so things may change.
-      rpc :PendingSweeps, PendingSweepsRequest, PendingSweepsResponse
+      rpc :PendingSweeps, ::Walletrpc::PendingSweepsRequest, ::Walletrpc::PendingSweepsResponse
       #
       # BumpFee bumps the fee of an arbitrary input within a transaction. This RPC
       # takes a different approach than bitcoind's bumpfee command. lnd has a
@@ -96,18 +96,51 @@ module Walletrpc
       # Note that this RPC currently doesn't perform any validation checks on the
       # fee preference being provided. For now, the responsibility of ensuring that
       # the new fee preference is sufficient is delegated to the user.
-      rpc :BumpFee, BumpFeeRequest, BumpFeeResponse
+      rpc :BumpFee, ::Walletrpc::BumpFeeRequest, ::Walletrpc::BumpFeeResponse
       #
       # ListSweeps returns a list of the sweep transactions our node has produced.
       # Note that these sweeps may not be confirmed yet, as we record sweeps on
       # broadcast, not confirmation.
-      rpc :ListSweeps, ListSweepsRequest, ListSweepsResponse
+      rpc :ListSweeps, ::Walletrpc::ListSweepsRequest, ::Walletrpc::ListSweepsResponse
       #
       # LabelTransaction adds a label to a transaction. If the transaction already
       # has a label the call will fail unless the overwrite bool is set. This will
       # overwrite the exiting transaction label. Labels must not be empty, and
       # cannot exceed 500 characters.
-      rpc :LabelTransaction, LabelTransactionRequest, LabelTransactionResponse
+      rpc :LabelTransaction, ::Walletrpc::LabelTransactionRequest, ::Walletrpc::LabelTransactionResponse
+      #
+      # FundPsbt creates a fully populated PSBT that contains enough inputs to fund
+      # the outputs specified in the template. There are two ways of specifying a
+      # template: Either by passing in a PSBT with at least one output declared or
+      # by passing in a raw TxTemplate message.
+      #
+      # If there are no inputs specified in the template, coin selection is
+      # performed automatically. If the template does contain any inputs, it is
+      # assumed that full coin selection happened externally and no additional
+      # inputs are added. If the specified inputs aren't enough to fund the outputs
+      # with the given fee rate, an error is returned.
+      #
+      # After either selecting or verifying the inputs, all input UTXOs are locked
+      # with an internal app ID.
+      #
+      # NOTE: If this method returns without an error, it is the caller's
+      # responsibility to either spend the locked UTXOs (by finalizing and then
+      # publishing the transaction) or to unlock/release the locked UTXOs in case of
+      # an error on the caller's side.
+      rpc :FundPsbt, ::Walletrpc::FundPsbtRequest, ::Walletrpc::FundPsbtResponse
+      #
+      # FinalizePsbt expects a partial transaction with all inputs and outputs fully
+      # declared and tries to sign all inputs that belong to the wallet. Lnd must be
+      # the last signer of the transaction. That means, if there are any unsigned
+      # non-witness inputs or inputs without UTXO information attached or inputs
+      # without witness data that do not belong to lnd's wallet, this method will
+      # fail. If no error is returned, the PSBT is ready to be extracted and the
+      # final TX within to be broadcast.
+      #
+      # NOTE: This method does NOT publish the transaction once finalized. It is the
+      # caller's responsibility to either publish the transaction on success or
+      # unlock/release any locked UTXOs in case of an error in this method.
+      rpc :FinalizePsbt, ::Walletrpc::FinalizePsbtRequest, ::Walletrpc::FinalizePsbtResponse
     end
 
     Stub = Service.rpc_stub_class

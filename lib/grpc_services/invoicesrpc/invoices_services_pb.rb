@@ -10,7 +10,7 @@ module Invoicesrpc
     # invoices.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -20,20 +20,20 @@ module Invoicesrpc
       # SubscribeSingleInvoice returns a uni-directional stream (server -> client)
       # to notify the client of state transitions of the specified invoice.
       # Initially the current invoice state is always sent out.
-      rpc :SubscribeSingleInvoice, SubscribeSingleInvoiceRequest, stream(Lnrpc::Invoice)
+      rpc :SubscribeSingleInvoice, ::Invoicesrpc::SubscribeSingleInvoiceRequest, stream(::Lnrpc::Invoice)
       #
       # CancelInvoice cancels a currently open invoice. If the invoice is already
       # canceled, this call will succeed. If the invoice is already settled, it will
       # fail.
-      rpc :CancelInvoice, CancelInvoiceMsg, CancelInvoiceResp
+      rpc :CancelInvoice, ::Invoicesrpc::CancelInvoiceMsg, ::Invoicesrpc::CancelInvoiceResp
       #
       # AddHoldInvoice creates a hold invoice. It ties the invoice to the hash
       # supplied in the request.
-      rpc :AddHoldInvoice, AddHoldInvoiceRequest, AddHoldInvoiceResp
+      rpc :AddHoldInvoice, ::Invoicesrpc::AddHoldInvoiceRequest, ::Invoicesrpc::AddHoldInvoiceResp
       #
       # SettleInvoice settles an accepted invoice. If the invoice is already
       # settled, this call will succeed.
-      rpc :SettleInvoice, SettleInvoiceMsg, SettleInvoiceResp
+      rpc :SettleInvoice, ::Invoicesrpc::SettleInvoiceMsg, ::Invoicesrpc::SettleInvoiceResp
     end
 
     Stub = Service.rpc_stub_class

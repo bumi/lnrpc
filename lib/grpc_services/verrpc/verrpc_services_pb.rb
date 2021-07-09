@@ -10,7 +10,7 @@ module Verrpc
     # and build information of the running daemon.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -19,7 +19,7 @@ module Verrpc
       # lncli: `version`
       # GetVersion returns the current version and build information of the running
       # daemon.
-      rpc :GetVersion, VersionRequest, Version
+      rpc :GetVersion, ::Verrpc::VersionRequest, ::Verrpc::Version
     end
 
     Stub = Service.rpc_stub_class

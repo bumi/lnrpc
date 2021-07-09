@@ -10,7 +10,7 @@ module Routerrpc
     # subsystem of the daemon.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -20,65 +20,65 @@ module Routerrpc
       # SendPaymentV2 attempts to route a payment described by the passed
       # PaymentRequest to the final destination. The call returns a stream of
       # payment updates.
-      rpc :SendPaymentV2, SendPaymentRequest, stream(Lnrpc::Payment)
+      rpc :SendPaymentV2, ::Routerrpc::SendPaymentRequest, stream(::Lnrpc::Payment)
       #
       # TrackPaymentV2 returns an update stream for the payment identified by the
       # payment hash.
-      rpc :TrackPaymentV2, TrackPaymentRequest, stream(Lnrpc::Payment)
+      rpc :TrackPaymentV2, ::Routerrpc::TrackPaymentRequest, stream(::Lnrpc::Payment)
       #
       # EstimateRouteFee allows callers to obtain a lower bound w.r.t how much it
       # may cost to send an HTLC to the target end destination.
-      rpc :EstimateRouteFee, RouteFeeRequest, RouteFeeResponse
+      rpc :EstimateRouteFee, ::Routerrpc::RouteFeeRequest, ::Routerrpc::RouteFeeResponse
       #
       # Deprecated, use SendToRouteV2. SendToRoute attempts to make a payment via
       # the specified route. This method differs from SendPayment in that it
       # allows users to specify a full route manually. This can be used for
       # things like rebalancing, and atomic swaps. It differs from the newer
       # SendToRouteV2 in that it doesn't return the full HTLC information.
-      rpc :SendToRoute, SendToRouteRequest, SendToRouteResponse
+      rpc :SendToRoute, ::Routerrpc::SendToRouteRequest, ::Routerrpc::SendToRouteResponse
       #
       # SendToRouteV2 attempts to make a payment via the specified route. This
       # method differs from SendPayment in that it allows users to specify a full
       # route manually. This can be used for things like rebalancing, and atomic
       # swaps.
-      rpc :SendToRouteV2, SendToRouteRequest, Lnrpc::HTLCAttempt
+      rpc :SendToRouteV2, ::Routerrpc::SendToRouteRequest, ::Lnrpc::HTLCAttempt
       #
       # ResetMissionControl clears all mission control state and starts with a clean
       # slate.
-      rpc :ResetMissionControl, ResetMissionControlRequest, ResetMissionControlResponse
+      rpc :ResetMissionControl, ::Routerrpc::ResetMissionControlRequest, ::Routerrpc::ResetMissionControlResponse
       #
       # QueryMissionControl exposes the internal mission control state to callers.
       # It is a development feature.
-      rpc :QueryMissionControl, QueryMissionControlRequest, QueryMissionControlResponse
+      rpc :QueryMissionControl, ::Routerrpc::QueryMissionControlRequest, ::Routerrpc::QueryMissionControlResponse
       #
       # QueryProbability returns the current success probability estimate for a
       # given node pair and amount.
-      rpc :QueryProbability, QueryProbabilityRequest, QueryProbabilityResponse
+      rpc :QueryProbability, ::Routerrpc::QueryProbabilityRequest, ::Routerrpc::QueryProbabilityResponse
       #
       # BuildRoute builds a fully specified route based on a list of hop public
       # keys. It retrieves the relevant channel policies from the graph in order to
       # calculate the correct fees and time locks.
-      rpc :BuildRoute, BuildRouteRequest, BuildRouteResponse
+      rpc :BuildRoute, ::Routerrpc::BuildRouteRequest, ::Routerrpc::BuildRouteResponse
       #
       # SubscribeHtlcEvents creates a uni-directional stream from the server to
       # the client which delivers a stream of htlc events.
-      rpc :SubscribeHtlcEvents, SubscribeHtlcEventsRequest, stream(HtlcEvent)
+      rpc :SubscribeHtlcEvents, ::Routerrpc::SubscribeHtlcEventsRequest, stream(::Routerrpc::HtlcEvent)
       #
       # Deprecated, use SendPaymentV2. SendPayment attempts to route a payment
       # described by the passed PaymentRequest to the final destination. The call
       # returns a stream of payment status updates.
-      rpc :SendPayment, SendPaymentRequest, stream(PaymentStatus)
+      rpc :SendPayment, ::Routerrpc::SendPaymentRequest, stream(::Routerrpc::PaymentStatus)
       #
       # Deprecated, use TrackPaymentV2. TrackPayment returns an update stream for
       # the payment identified by the payment hash.
-      rpc :TrackPayment, TrackPaymentRequest, stream(PaymentStatus)
+      rpc :TrackPayment, ::Routerrpc::TrackPaymentRequest, stream(::Routerrpc::PaymentStatus)
       # *
       # HtlcInterceptor dispatches a bi-directional streaming RPC in which
       # Forwarded HTLC requests are sent to the client and the client responds with
       # a boolean that tells LND if this htlc should be intercepted.
       # In case of interception, the htlc can be either settled, cancelled or
       # resumed later by using the ResolveHoldForward endpoint.
-      rpc :HtlcInterceptor, stream(ForwardHtlcInterceptResponse), stream(ForwardHtlcInterceptRequest)
+      rpc :HtlcInterceptor, stream(::Routerrpc::ForwardHtlcInterceptResponse), stream(::Routerrpc::ForwardHtlcInterceptRequest)
     end
 
     Stub = Service.rpc_stub_class

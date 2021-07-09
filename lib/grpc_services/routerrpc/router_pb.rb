@@ -12,6 +12,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :amt_msat, :int64, 12
       optional :payment_hash, :bytes, 3
       optional :final_cltv_delta, :int32, 4
+      optional :payment_addr, :bytes, 20
       optional :payment_request, :string, 5
       optional :timeout_seconds, :int32, 6
       optional :fee_limit_sat, :int64, 7
@@ -26,6 +27,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :dest_features, :enum, 16, "lnrpc.FeatureBit"
       optional :max_parts, :uint32, 17
       optional :no_inflight_updates, :bool, 18
+      optional :max_shard_size_msat, :uint64, 21
     end
     add_message "routerrpc.TrackPaymentRequest" do
       optional :payment_hash, :bytes, 1
@@ -83,6 +85,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :final_cltv_delta, :int32, 2
       optional :outgoing_chan_id, :uint64, 3
       repeated :hop_pubkeys, :bytes, 4
+      optional :payment_addr, :bytes, 5
     end
     add_message "routerrpc.BuildRouteResponse" do
       optional :route, :message, 1, "lnrpc.Route"
@@ -146,6 +149,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :outgoing_amount_msat, :uint64, 3
       optional :outgoing_expiry, :uint32, 4
       map :custom_records, :uint64, :bytes, 8
+      optional :onion_blob, :bytes, 9
     end
     add_message "routerrpc.ForwardHtlcInterceptResponse" do
       optional :incoming_circuit_key, :message, 1, "routerrpc.CircuitKey"

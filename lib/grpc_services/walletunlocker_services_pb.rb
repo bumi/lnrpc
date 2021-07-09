@@ -27,7 +27,7 @@ module Lnrpc
     # lnd at first startup, and unlock a previously set up wallet.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -42,7 +42,7 @@ module Lnrpc
       # Once the cipherseed is obtained and verified by the user, the InitWallet
       # method should be used to commit the newly generated seed, and create the
       # wallet.
-      rpc :GenSeed, GenSeedRequest, GenSeedResponse
+      rpc :GenSeed, ::Lnrpc::GenSeedRequest, ::Lnrpc::GenSeedResponse
       #
       # InitWallet is used when lnd is starting up for the first time to fully
       # initialize the daemon and its internal wallet. At the very least a wallet
@@ -56,15 +56,15 @@ module Lnrpc
       # Alternatively, this can be used along with the GenSeed RPC to obtain a
       # seed, then present it to the user. Once it has been verified by the user,
       # the seed can be fed into this RPC in order to commit the new wallet.
-      rpc :InitWallet, InitWalletRequest, InitWalletResponse
+      rpc :InitWallet, ::Lnrpc::InitWalletRequest, ::Lnrpc::InitWalletResponse
       # lncli: `unlock`
       # UnlockWallet is used at startup of lnd to provide a password to unlock
       # the wallet database.
-      rpc :UnlockWallet, UnlockWalletRequest, UnlockWalletResponse
+      rpc :UnlockWallet, ::Lnrpc::UnlockWalletRequest, ::Lnrpc::UnlockWalletResponse
       # lncli: `changepassword`
       # ChangePassword changes the password of the encrypted wallet. This will
       # automatically unlock the wallet database if successful.
-      rpc :ChangePassword, ChangePasswordRequest, ChangePasswordResponse
+      rpc :ChangePassword, ::Lnrpc::ChangePasswordRequest, ::Lnrpc::ChangePasswordResponse
     end
 
     Stub = Service.rpc_stub_class

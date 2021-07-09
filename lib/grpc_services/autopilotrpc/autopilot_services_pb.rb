@@ -11,7 +11,7 @@ module Autopilotrpc
     # that can be used when deciding where to open channels.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -19,20 +19,20 @@ module Autopilotrpc
 
       #
       # Status returns whether the daemon's autopilot agent is active.
-      rpc :Status, StatusRequest, StatusResponse
+      rpc :Status, ::Autopilotrpc::StatusRequest, ::Autopilotrpc::StatusResponse
       #
       # ModifyStatus is used to modify the status of the autopilot agent, like
       # enabling or disabling it.
-      rpc :ModifyStatus, ModifyStatusRequest, ModifyStatusResponse
+      rpc :ModifyStatus, ::Autopilotrpc::ModifyStatusRequest, ::Autopilotrpc::ModifyStatusResponse
       #
       # QueryScores queries all available autopilot heuristics, in addition to any
       # active combination of these heruristics, for the scores they would give to
       # the given nodes.
-      rpc :QueryScores, QueryScoresRequest, QueryScoresResponse
+      rpc :QueryScores, ::Autopilotrpc::QueryScoresRequest, ::Autopilotrpc::QueryScoresResponse
       #
       # SetScores attempts to set the scores used by the running autopilot agent,
       # if the external scoring heuristic is enabled.
-      rpc :SetScores, SetScoresRequest, SetScoresResponse
+      rpc :SetScores, ::Autopilotrpc::SetScoresRequest, ::Autopilotrpc::SetScoresResponse
     end
 
     Stub = Service.rpc_stub_class

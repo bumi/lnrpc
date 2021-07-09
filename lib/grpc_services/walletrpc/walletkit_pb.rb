@@ -47,6 +47,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :sat_per_kw, :int64, 1
       repeated :outputs, :message, 2, "signrpc.TxOut"
       optional :label, :string, 3
+      optional :min_confs, :int32, 4
+      optional :spend_unconfirmed, :bool, 5
     end
     add_message "walletrpc.SendOutputsResponse" do
       optional :raw_tx, :bytes, 1
@@ -100,6 +102,37 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "walletrpc.LabelTransactionResponse" do
     end
+    add_message "walletrpc.FundPsbtRequest" do
+      oneof :template do
+        optional :psbt, :bytes, 1
+        optional :raw, :message, 2, "walletrpc.TxTemplate"
+      end
+      oneof :fees do
+        optional :target_conf, :uint32, 3
+        optional :sat_per_vbyte, :uint32, 4
+      end
+    end
+    add_message "walletrpc.FundPsbtResponse" do
+      optional :funded_psbt, :bytes, 1
+      optional :change_output_index, :int32, 2
+      repeated :locked_utxos, :message, 3, "walletrpc.UtxoLease"
+    end
+    add_message "walletrpc.TxTemplate" do
+      repeated :inputs, :message, 1, "lnrpc.OutPoint"
+      map :outputs, :string, :uint64, 2
+    end
+    add_message "walletrpc.UtxoLease" do
+      optional :id, :bytes, 1
+      optional :outpoint, :message, 2, "lnrpc.OutPoint"
+      optional :expiration, :uint64, 3
+    end
+    add_message "walletrpc.FinalizePsbtRequest" do
+      optional :funded_psbt, :bytes, 1
+    end
+    add_message "walletrpc.FinalizePsbtResponse" do
+      optional :signed_psbt, :bytes, 1
+      optional :raw_final_tx, :bytes, 2
+    end
     add_enum "walletrpc.WitnessType" do
       value :UNKNOWN_WITNESS, 0
       value :COMMITMENT_TIME_LOCK, 1
@@ -145,5 +178,11 @@ module Walletrpc
   ListSweepsResponse::TransactionIDs = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ListSweepsResponse.TransactionIDs").msgclass
   LabelTransactionRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.LabelTransactionRequest").msgclass
   LabelTransactionResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.LabelTransactionResponse").msgclass
+  FundPsbtRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FundPsbtRequest").msgclass
+  FundPsbtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FundPsbtResponse").msgclass
+  TxTemplate = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.TxTemplate").msgclass
+  UtxoLease = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.UtxoLease").msgclass
+  FinalizePsbtRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FinalizePsbtRequest").msgclass
+  FinalizePsbtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FinalizePsbtResponse").msgclass
   WitnessType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.WitnessType").enummodule
 end

@@ -20,21 +20,27 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :aezeed_passphrase, :bytes, 3
       optional :recovery_window, :int32, 4
       optional :channel_backups, :message, 5, "lnrpc.ChanBackupSnapshot"
+      optional :stateless_init, :bool, 6
     end
     add_message "lnrpc.InitWalletResponse" do
+      optional :admin_macaroon, :bytes, 1
     end
     add_message "lnrpc.UnlockWalletRequest" do
       optional :wallet_password, :bytes, 1
       optional :recovery_window, :int32, 2
       optional :channel_backups, :message, 3, "lnrpc.ChanBackupSnapshot"
+      optional :stateless_init, :bool, 4
     end
     add_message "lnrpc.UnlockWalletResponse" do
     end
     add_message "lnrpc.ChangePasswordRequest" do
       optional :current_password, :bytes, 1
       optional :new_password, :bytes, 2
+      optional :stateless_init, :bool, 3
+      optional :new_macaroon_root_key, :bool, 4
     end
     add_message "lnrpc.ChangePasswordResponse" do
+      optional :admin_macaroon, :bytes, 1
     end
   end
 end

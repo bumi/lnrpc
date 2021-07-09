@@ -26,7 +26,7 @@ module Lnrpc
     # Lightning is the main RPC server of the daemon.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -36,15 +36,16 @@ module Lnrpc
       # WalletBalance returns total unspent outputs(confirmed and unconfirmed), all
       # confirmed unspent outputs and all unconfirmed unspent outputs under control
       # of the wallet.
-      rpc :WalletBalance, WalletBalanceRequest, WalletBalanceResponse
+      rpc :WalletBalance, ::Lnrpc::WalletBalanceRequest, ::Lnrpc::WalletBalanceResponse
       # lncli: `channelbalance`
-      # ChannelBalance returns the total funds available across all open channels
-      # in satoshis.
-      rpc :ChannelBalance, ChannelBalanceRequest, ChannelBalanceResponse
+      # ChannelBalance returns a report on the total funds across all open channels,
+      # categorized in local/remote, pending local/remote and unsettled local/remote
+      # balances.
+      rpc :ChannelBalance, ::Lnrpc::ChannelBalanceRequest, ::Lnrpc::ChannelBalanceResponse
       # lncli: `listchaintxns`
       # GetTransactions returns a list describing all the known transactions
       # relevant to the wallet.
-      rpc :GetTransactions, GetTransactionsRequest, TransactionDetails
+      rpc :GetTransactions, ::Lnrpc::GetTransactionsRequest, ::Lnrpc::TransactionDetails
       # lncli: `estimatefee`
       # EstimateFee asks the chain backend to estimate the fee rate and total fees
       # for a transaction that pays to multiple specified outputs.
@@ -53,73 +54,73 @@ module Lnrpc
       # `&AddrToAmount[<address>]=<amount_to_send>` to the URL. Unfortunately this
       # map type doesn't appear in the REST API documentation because of a bug in
       # the grpc-gateway library.
-      rpc :EstimateFee, EstimateFeeRequest, EstimateFeeResponse
+      rpc :EstimateFee, ::Lnrpc::EstimateFeeRequest, ::Lnrpc::EstimateFeeResponse
       # lncli: `sendcoins`
       # SendCoins executes a request to send coins to a particular address. Unlike
       # SendMany, this RPC call only allows creating a single output at a time. If
       # neither target_conf, or sat_per_byte are set, then the internal wallet will
       # consult its fee model to determine a fee for the default confirmation
       # target.
-      rpc :SendCoins, SendCoinsRequest, SendCoinsResponse
+      rpc :SendCoins, ::Lnrpc::SendCoinsRequest, ::Lnrpc::SendCoinsResponse
       # lncli: `listunspent`
       # Deprecated, use walletrpc.ListUnspent instead.
       #
       # ListUnspent returns a list of all utxos spendable by the wallet with a
       # number of confirmations between the specified minimum and maximum.
-      rpc :ListUnspent, ListUnspentRequest, ListUnspentResponse
+      rpc :ListUnspent, ::Lnrpc::ListUnspentRequest, ::Lnrpc::ListUnspentResponse
       #
       # SubscribeTransactions creates a uni-directional stream from the server to
       # the client in which any newly discovered transactions relevant to the
       # wallet are sent over.
-      rpc :SubscribeTransactions, GetTransactionsRequest, stream(Transaction)
+      rpc :SubscribeTransactions, ::Lnrpc::GetTransactionsRequest, stream(::Lnrpc::Transaction)
       # lncli: `sendmany`
       # SendMany handles a request for a transaction that creates multiple specified
       # outputs in parallel. If neither target_conf, or sat_per_byte are set, then
       # the internal wallet will consult its fee model to determine a fee for the
       # default confirmation target.
-      rpc :SendMany, SendManyRequest, SendManyResponse
+      rpc :SendMany, ::Lnrpc::SendManyRequest, ::Lnrpc::SendManyResponse
       # lncli: `newaddress`
       # NewAddress creates a new address under control of the local wallet.
-      rpc :NewAddress, NewAddressRequest, NewAddressResponse
+      rpc :NewAddress, ::Lnrpc::NewAddressRequest, ::Lnrpc::NewAddressResponse
       # lncli: `signmessage`
       # SignMessage signs a message with this node's private key. The returned
       # signature string is `zbase32` encoded and pubkey recoverable, meaning that
       # only the message digest and signature are needed for verification.
-      rpc :SignMessage, SignMessageRequest, SignMessageResponse
+      rpc :SignMessage, ::Lnrpc::SignMessageRequest, ::Lnrpc::SignMessageResponse
       # lncli: `verifymessage`
       # VerifyMessage verifies a signature over a msg. The signature must be
       # zbase32 encoded and signed by an active node in the resident node's
       # channel database. In addition to returning the validity of the signature,
       # VerifyMessage also returns the recovered pubkey from the signature.
-      rpc :VerifyMessage, VerifyMessageRequest, VerifyMessageResponse
+      rpc :VerifyMessage, ::Lnrpc::VerifyMessageRequest, ::Lnrpc::VerifyMessageResponse
       # lncli: `connect`
       # ConnectPeer attempts to establish a connection to a remote peer. This is at
       # the networking level, and is used for communication between nodes. This is
       # distinct from establishing a channel with a peer.
-      rpc :ConnectPeer, ConnectPeerRequest, ConnectPeerResponse
+      rpc :ConnectPeer, ::Lnrpc::ConnectPeerRequest, ::Lnrpc::ConnectPeerResponse
       # lncli: `disconnect`
       # DisconnectPeer attempts to disconnect one peer from another identified by a
       # given pubKey. In the case that we currently have a pending or active channel
       # with the target peer, then this action will be not be allowed.
-      rpc :DisconnectPeer, DisconnectPeerRequest, DisconnectPeerResponse
+      rpc :DisconnectPeer, ::Lnrpc::DisconnectPeerRequest, ::Lnrpc::DisconnectPeerResponse
       # lncli: `listpeers`
       # ListPeers returns a verbose listing of all currently active peers.
-      rpc :ListPeers, ListPeersRequest, ListPeersResponse
+      rpc :ListPeers, ::Lnrpc::ListPeersRequest, ::Lnrpc::ListPeersResponse
       #
       # SubscribePeerEvents creates a uni-directional stream from the server to
       # the client in which any events relevant to the state of peers are sent
       # over. Events include peers going online and offline.
-      rpc :SubscribePeerEvents, PeerEventSubscription, stream(PeerEvent)
+      rpc :SubscribePeerEvents, ::Lnrpc::PeerEventSubscription, stream(::Lnrpc::PeerEvent)
       # lncli: `getinfo`
       # GetInfo returns general information concerning the lightning node including
       # it's identity pubkey, alias, the chains it is connected to, and information
       # concerning the number of open+pending channels.
-      rpc :GetInfo, GetInfoRequest, GetInfoResponse
+      rpc :GetInfo, ::Lnrpc::GetInfoRequest, ::Lnrpc::GetInfoResponse
       # * lncli: `getrecoveryinfo`
       # GetRecoveryInfo returns information concerning the recovery mode including
       # whether it's in a recovery mode, whether the recovery is finished, and the
       # progress made so far.
-      rpc :GetRecoveryInfo, GetRecoveryInfoRequest, GetRecoveryInfoResponse
+      rpc :GetRecoveryInfo, ::Lnrpc::GetRecoveryInfoRequest, ::Lnrpc::GetRecoveryInfoResponse
       # TODO(roasbeef): merge with below with bool?
       #
       # lncli: `pendingchannels`
@@ -127,27 +128,27 @@ module Lnrpc
       # considered "pending". A channel is pending if it has finished the funding
       # workflow and is waiting for confirmations for the funding txn, or is in the
       # process of closure, either initiated cooperatively or non-cooperatively.
-      rpc :PendingChannels, PendingChannelsRequest, PendingChannelsResponse
+      rpc :PendingChannels, ::Lnrpc::PendingChannelsRequest, ::Lnrpc::PendingChannelsResponse
       # lncli: `listchannels`
       # ListChannels returns a description of all the open channels that this node
       # is a participant in.
-      rpc :ListChannels, ListChannelsRequest, ListChannelsResponse
+      rpc :ListChannels, ::Lnrpc::ListChannelsRequest, ::Lnrpc::ListChannelsResponse
       #
       # SubscribeChannelEvents creates a uni-directional stream from the server to
       # the client in which any updates relevant to the state of the channels are
       # sent over. Events include new active channels, inactive channels, and closed
       # channels.
-      rpc :SubscribeChannelEvents, ChannelEventSubscription, stream(ChannelEventUpdate)
+      rpc :SubscribeChannelEvents, ::Lnrpc::ChannelEventSubscription, stream(::Lnrpc::ChannelEventUpdate)
       # lncli: `closedchannels`
       # ClosedChannels returns a description of all the closed channels that
       # this node was a participant in.
-      rpc :ClosedChannels, ClosedChannelsRequest, ClosedChannelsResponse
+      rpc :ClosedChannels, ::Lnrpc::ClosedChannelsRequest, ::Lnrpc::ClosedChannelsResponse
       #
       # OpenChannelSync is a synchronous version of the OpenChannel RPC call. This
       # call is meant to be consumed by clients to the REST proxy. As with all
       # other sync calls, all byte slices are intended to be populated as hex
       # encoded strings.
-      rpc :OpenChannelSync, OpenChannelRequest, ChannelPoint
+      rpc :OpenChannelSync, ::Lnrpc::OpenChannelRequest, ::Lnrpc::ChannelPoint
       # lncli: `openchannel`
       # OpenChannel attempts to open a singly funded channel specified in the
       # request to a remote peer. Users are able to specify a target number of
@@ -157,7 +158,7 @@ module Lnrpc
       # the pending channel ID of the in-progress channel. Depending on the
       # arguments specified in the OpenChannelRequest, this pending channel ID can
       # then be used to manually progress the channel funding flow.
-      rpc :OpenChannel, OpenChannelRequest, stream(OpenStatusUpdate)
+      rpc :OpenChannel, ::Lnrpc::OpenChannelRequest, stream(::Lnrpc::OpenStatusUpdate)
       #
       # FundingStateStep is an advanced funding related call that allows the caller
       # to either execute some preparatory steps for a funding workflow, or
@@ -167,14 +168,14 @@ module Lnrpc
       # pending channel ID, for which we need to use specific parameters.
       # Alternatively, this can be used to interactively drive PSBT signing for
       # funding for partially complete funding transactions.
-      rpc :FundingStateStep, FundingTransitionMsg, FundingStateStepResp
+      rpc :FundingStateStep, ::Lnrpc::FundingTransitionMsg, ::Lnrpc::FundingStateStepResp
       #
       # ChannelAcceptor dispatches a bi-directional streaming RPC in which
       # OpenChannel requests are sent to the client and the client responds with
       # a boolean that tells LND whether or not to accept the channel. This allows
       # node operators to specify their own criteria for accepting inbound channels
       # through a single persistent connection.
-      rpc :ChannelAcceptor, stream(ChannelAcceptResponse), stream(ChannelAcceptRequest)
+      rpc :ChannelAcceptor, stream(::Lnrpc::ChannelAcceptResponse), stream(::Lnrpc::ChannelAcceptRequest)
       # lncli: `closechannel`
       # CloseChannel attempts to close an active channel identified by its channel
       # outpoint (ChannelPoint). The actions of this method can additionally be
@@ -183,42 +184,44 @@ module Lnrpc
       # then the user can specify either a target number of blocks until the
       # closure transaction is confirmed, or a manual fee rate. If neither are
       # specified, then a default lax, block confirmation target is used.
-      rpc :CloseChannel, CloseChannelRequest, stream(CloseStatusUpdate)
+      rpc :CloseChannel, ::Lnrpc::CloseChannelRequest, stream(::Lnrpc::CloseStatusUpdate)
       # lncli: `abandonchannel`
       # AbandonChannel removes all channel state from the database except for a
       # close summary. This method can be used to get rid of permanently unusable
-      # channels due to bugs fixed in newer versions of lnd. Only available
-      # when in debug builds of lnd.
-      rpc :AbandonChannel, AbandonChannelRequest, AbandonChannelResponse
+      # channels due to bugs fixed in newer versions of lnd. This method can also be
+      # used to remove externally funded channels where the funding transaction was
+      # never broadcast. Only available for non-externally funded channels in dev
+      # build.
+      rpc :AbandonChannel, ::Lnrpc::AbandonChannelRequest, ::Lnrpc::AbandonChannelResponse
       # lncli: `sendpayment`
       # Deprecated, use routerrpc.SendPaymentV2. SendPayment dispatches a
       # bi-directional streaming RPC for sending payments through the Lightning
       # Network. A single RPC invocation creates a persistent bi-directional
       # stream allowing clients to rapidly send payments through the Lightning
       # Network with a single persistent connection.
-      rpc :SendPayment, stream(SendRequest), stream(SendResponse)
+      rpc :SendPayment, stream(::Lnrpc::SendRequest), stream(::Lnrpc::SendResponse)
       #
       # SendPaymentSync is the synchronous non-streaming version of SendPayment.
       # This RPC is intended to be consumed by clients of the REST proxy.
       # Additionally, this RPC expects the destination's public key and the payment
       # hash (if any) to be encoded as hex strings.
-      rpc :SendPaymentSync, SendRequest, SendResponse
+      rpc :SendPaymentSync, ::Lnrpc::SendRequest, ::Lnrpc::SendResponse
       # lncli: `sendtoroute`
       # Deprecated, use routerrpc.SendToRouteV2. SendToRoute is a bi-directional
       # streaming RPC for sending payment through the Lightning Network. This
       # method differs from SendPayment in that it allows users to specify a full
       # route manually. This can be used for things like rebalancing, and atomic
       # swaps.
-      rpc :SendToRoute, stream(SendToRouteRequest), stream(SendResponse)
+      rpc :SendToRoute, stream(::Lnrpc::SendToRouteRequest), stream(::Lnrpc::SendResponse)
       #
       # SendToRouteSync is a synchronous version of SendToRoute. It Will block
       # until the payment either fails or succeeds.
-      rpc :SendToRouteSync, SendToRouteRequest, SendResponse
+      rpc :SendToRouteSync, ::Lnrpc::SendToRouteRequest, ::Lnrpc::SendResponse
       # lncli: `addinvoice`
       # AddInvoice attempts to add a new invoice to the invoice database. Any
       # duplicated invoices are rejected, therefore all invoices *must* have a
       # unique payment preimage.
-      rpc :AddInvoice, Invoice, AddInvoiceResponse
+      rpc :AddInvoice, ::Lnrpc::Invoice, ::Lnrpc::AddInvoiceResponse
       # lncli: `listinvoices`
       # ListInvoices returns a list of all the invoices currently stored within the
       # database. Any active debug invoices are ignored. It has full support for
@@ -227,12 +230,12 @@ module Lnrpc
       # last_index_offset fields included in the response as the index_offset of the
       # next request. By default, the first 100 invoices created will be returned.
       # Backwards pagination is also supported through the Reversed flag.
-      rpc :ListInvoices, ListInvoiceRequest, ListInvoiceResponse
+      rpc :ListInvoices, ::Lnrpc::ListInvoiceRequest, ::Lnrpc::ListInvoiceResponse
       # lncli: `lookupinvoice`
       # LookupInvoice attempts to look up an invoice according to its payment hash.
       # The passed payment hash *must* be exactly 32 bytes, if not, an error is
       # returned.
-      rpc :LookupInvoice, PaymentHash, Invoice
+      rpc :LookupInvoice, ::Lnrpc::PaymentHash, ::Lnrpc::Invoice
       #
       # SubscribeInvoices returns a uni-directional stream (server -> client) for
       # notifying the client of newly added/settled invoices. The caller can
@@ -243,18 +246,18 @@ module Lnrpc
       # invoices with a settle_index greater than the specified value. One or both
       # of these fields can be set. If no fields are set, then we'll only send out
       # the latest add/settle events.
-      rpc :SubscribeInvoices, InvoiceSubscription, stream(Invoice)
+      rpc :SubscribeInvoices, ::Lnrpc::InvoiceSubscription, stream(::Lnrpc::Invoice)
       # lncli: `decodepayreq`
       # DecodePayReq takes an encoded payment request string and attempts to decode
       # it, returning a full description of the conditions encoded within the
       # payment request.
-      rpc :DecodePayReq, PayReqString, PayReq
+      rpc :DecodePayReq, ::Lnrpc::PayReqString, ::Lnrpc::PayReq
       # lncli: `listpayments`
       # ListPayments returns a list of all outgoing payments.
-      rpc :ListPayments, ListPaymentsRequest, ListPaymentsResponse
+      rpc :ListPayments, ::Lnrpc::ListPaymentsRequest, ::Lnrpc::ListPaymentsResponse
       #
       # DeleteAllPayments deletes all outgoing payments from DB.
-      rpc :DeleteAllPayments, DeleteAllPaymentsRequest, DeleteAllPaymentsResponse
+      rpc :DeleteAllPayments, ::Lnrpc::DeleteAllPaymentsRequest, ::Lnrpc::DeleteAllPaymentsResponse
       # lncli: `describegraph`
       # DescribeGraph returns a description of the latest graph state from the
       # point of view of the node. The graph information is partitioned into two
@@ -262,21 +265,21 @@ module Lnrpc
       # vertexes themselves. As this is a directed graph, the edges also contain
       # the node directional specific routing policy which includes: the time lock
       # delta, fee information, etc.
-      rpc :DescribeGraph, ChannelGraphRequest, ChannelGraph
+      rpc :DescribeGraph, ::Lnrpc::ChannelGraphRequest, ::Lnrpc::ChannelGraph
       # lncli: `getnodemetrics`
       # GetNodeMetrics returns node metrics calculated from the graph. Currently
       # the only supported metric is betweenness centrality of individual nodes.
-      rpc :GetNodeMetrics, NodeMetricsRequest, NodeMetricsResponse
+      rpc :GetNodeMetrics, ::Lnrpc::NodeMetricsRequest, ::Lnrpc::NodeMetricsResponse
       # lncli: `getchaninfo`
       # GetChanInfo returns the latest authenticated network announcement for the
       # given channel identified by its channel ID: an 8-byte integer which
       # uniquely identifies the location of transaction's funding output within the
       # blockchain.
-      rpc :GetChanInfo, ChanInfoRequest, ChannelEdge
+      rpc :GetChanInfo, ::Lnrpc::ChanInfoRequest, ::Lnrpc::ChannelEdge
       # lncli: `getnodeinfo`
       # GetNodeInfo returns the latest advertised, aggregated, and authenticated
       # channel information for the specified node identified by its public key.
-      rpc :GetNodeInfo, NodeInfoRequest, NodeInfo
+      rpc :GetNodeInfo, ::Lnrpc::NodeInfoRequest, ::Lnrpc::NodeInfo
       # lncli: `queryroutes`
       # QueryRoutes attempts to query the daemon's Channel Router for a possible
       # route to a target destination capable of carrying a specific amount of
@@ -288,15 +291,15 @@ module Lnrpc
       # `&dest_custom_records[<record_number>]=<record_data_base64_url_encoded>`
       # to the URL. Unfortunately this map type doesn't appear in the REST API
       # documentation because of a bug in the grpc-gateway library.
-      rpc :QueryRoutes, QueryRoutesRequest, QueryRoutesResponse
+      rpc :QueryRoutes, ::Lnrpc::QueryRoutesRequest, ::Lnrpc::QueryRoutesResponse
       # lncli: `getnetworkinfo`
       # GetNetworkInfo returns some basic stats about the known channel graph from
       # the point of view of the node.
-      rpc :GetNetworkInfo, NetworkInfoRequest, NetworkInfo
+      rpc :GetNetworkInfo, ::Lnrpc::NetworkInfoRequest, ::Lnrpc::NetworkInfo
       # lncli: `stop`
       # StopDaemon will send a shutdown request to the interrupt handler, triggering
       # a graceful shutdown of the daemon.
-      rpc :StopDaemon, StopRequest, StopResponse
+      rpc :StopDaemon, ::Lnrpc::StopRequest, ::Lnrpc::StopResponse
       #
       # SubscribeChannelGraph launches a streaming RPC that allows the caller to
       # receive notifications upon any changes to the channel graph topology from
@@ -304,21 +307,21 @@ module Lnrpc
       # nodes coming online, nodes updating their authenticated attributes, new
       # channels being advertised, updates in the routing policy for a directional
       # channel edge, and when channels are closed on-chain.
-      rpc :SubscribeChannelGraph, GraphTopologySubscription, stream(GraphTopologyUpdate)
+      rpc :SubscribeChannelGraph, ::Lnrpc::GraphTopologySubscription, stream(::Lnrpc::GraphTopologyUpdate)
       # lncli: `debuglevel`
       # DebugLevel allows a caller to programmatically set the logging verbosity of
       # lnd. The logging can be targeted according to a coarse daemon-wide logging
       # level, or in a granular fashion to specify the logging for a target
       # sub-system.
-      rpc :DebugLevel, DebugLevelRequest, DebugLevelResponse
+      rpc :DebugLevel, ::Lnrpc::DebugLevelRequest, ::Lnrpc::DebugLevelResponse
       # lncli: `feereport`
       # FeeReport allows the caller to obtain a report detailing the current fee
       # schedule enforced by the node globally for each channel.
-      rpc :FeeReport, FeeReportRequest, FeeReportResponse
+      rpc :FeeReport, ::Lnrpc::FeeReportRequest, ::Lnrpc::FeeReportResponse
       # lncli: `updatechanpolicy`
       # UpdateChannelPolicy allows the caller to update the fee schedule and
       # channel policies for all channels globally, or a particular channel.
-      rpc :UpdateChannelPolicy, PolicyUpdateRequest, PolicyUpdateResponse
+      rpc :UpdateChannelPolicy, ::Lnrpc::PolicyUpdateRequest, ::Lnrpc::PolicyUpdateResponse
       # lncli: `fwdinghistory`
       # ForwardingHistory allows the caller to query the htlcswitch for a record of
       # all HTLCs forwarded within the target time range, and integer offset
@@ -330,7 +333,7 @@ module Lnrpc
       # As a result each message can only contain 50k entries. Each response has
       # the index offset of the last entry. The index offset can be provided to the
       # request to allow the caller to skip a series of records.
-      rpc :ForwardingHistory, ForwardingHistoryRequest, ForwardingHistoryResponse
+      rpc :ForwardingHistory, ::Lnrpc::ForwardingHistoryRequest, ::Lnrpc::ForwardingHistoryResponse
       # lncli: `exportchanbackup`
       # ExportChannelBackup attempts to return an encrypted static channel backup
       # for the target channel identified by it channel point. The backup is
@@ -338,25 +341,25 @@ module Lnrpc
       # returned backup can either be restored using the RestoreChannelBackup
       # method once lnd is running, or via the InitWallet and UnlockWallet methods
       # from the WalletUnlocker service.
-      rpc :ExportChannelBackup, ExportChannelBackupRequest, ChannelBackup
+      rpc :ExportChannelBackup, ::Lnrpc::ExportChannelBackupRequest, ::Lnrpc::ChannelBackup
       #
       # ExportAllChannelBackups returns static channel backups for all existing
       # channels known to lnd. A set of regular singular static channel backups for
       # each channel are returned. Additionally, a multi-channel backup is returned
       # as well, which contains a single encrypted blob containing the backups of
       # each channel.
-      rpc :ExportAllChannelBackups, ChanBackupExportRequest, ChanBackupSnapshot
+      rpc :ExportAllChannelBackups, ::Lnrpc::ChanBackupExportRequest, ::Lnrpc::ChanBackupSnapshot
       #
       # VerifyChanBackup allows a caller to verify the integrity of a channel backup
       # snapshot. This method will accept either a packed Single or a packed Multi.
       # Specifying both will result in an error.
-      rpc :VerifyChanBackup, ChanBackupSnapshot, VerifyChanBackupResponse
+      rpc :VerifyChanBackup, ::Lnrpc::ChanBackupSnapshot, ::Lnrpc::VerifyChanBackupResponse
       # lncli: `restorechanbackup`
       # RestoreChannelBackups accepts a set of singular channel backups, or a
       # single encrypted multi-chan backup and attempts to recover any funds
       # remaining within the channel. If we are able to unpack the backup, then the
       # new channel will be shown under listchannels, as well as pending channels.
-      rpc :RestoreChannelBackups, RestoreChanBackupRequest, RestoreBackupResponse
+      rpc :RestoreChannelBackups, ::Lnrpc::RestoreChanBackupRequest, ::Lnrpc::RestoreBackupResponse
       #
       # SubscribeChannelBackups allows a client to sub-subscribe to the most up to
       # date information concerning the state of all channel backups. Each time a
@@ -365,12 +368,23 @@ module Lnrpc
       # channel is closed, we send a new update, which contains new new chan back
       # ups, but the updated set of encrypted multi-chan backups with the closed
       # channel(s) removed.
-      rpc :SubscribeChannelBackups, ChannelBackupSubscription, stream(ChanBackupSnapshot)
+      rpc :SubscribeChannelBackups, ::Lnrpc::ChannelBackupSubscription, stream(::Lnrpc::ChanBackupSnapshot)
       # lncli: `bakemacaroon`
       # BakeMacaroon allows the creation of a new macaroon with custom read and
       # write permissions. No first-party caveats are added since this can be done
       # offline.
-      rpc :BakeMacaroon, BakeMacaroonRequest, BakeMacaroonResponse
+      rpc :BakeMacaroon, ::Lnrpc::BakeMacaroonRequest, ::Lnrpc::BakeMacaroonResponse
+      # lncli: `listmacaroonids`
+      # ListMacaroonIDs returns all root key IDs that are in use.
+      rpc :ListMacaroonIDs, ::Lnrpc::ListMacaroonIDsRequest, ::Lnrpc::ListMacaroonIDsResponse
+      # lncli: `deletemacaroonid`
+      # DeleteMacaroonID deletes the specified macaroon ID and invalidates all
+      # macaroons derived from that ID.
+      rpc :DeleteMacaroonID, ::Lnrpc::DeleteMacaroonIDRequest, ::Lnrpc::DeleteMacaroonIDResponse
+      # lncli: `listpermissions`
+      # ListPermissions lists all RPC method URIs and their required macaroon
+      # permissions to access them.
+      rpc :ListPermissions, ::Lnrpc::ListPermissionsRequest, ::Lnrpc::ListPermissionsResponse
     end
 
     Stub = Service.rpc_stub_class

@@ -10,7 +10,7 @@ module Chainrpc
     # chain backend by registering notifiers for chain events.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -24,7 +24,7 @@ module Chainrpc
       # A client can specify whether the confirmation request should be for a
       # particular transaction by its hash or for an output script by specifying a
       # zero hash.
-      rpc :RegisterConfirmationsNtfn, ConfRequest, stream(ConfEvent)
+      rpc :RegisterConfirmationsNtfn, ::Chainrpc::ConfRequest, stream(::Chainrpc::ConfEvent)
       #
       # RegisterSpendNtfn is a synchronous response-streaming RPC that registers an
       # intent for a client to be notification once a spend request has been spent
@@ -32,7 +32,7 @@ module Chainrpc
       #
       # A client can specify whether the spend request should be for a particular
       # outpoint  or for an output script by specifying a zero outpoint.
-      rpc :RegisterSpendNtfn, SpendRequest, stream(SpendEvent)
+      rpc :RegisterSpendNtfn, ::Chainrpc::SpendRequest, stream(::Chainrpc::SpendEvent)
       #
       # RegisterBlockEpochNtfn is a synchronous response-streaming RPC that
       # registers an intent for a client to be notified of blocks in the chain. The
@@ -43,7 +43,7 @@ module Chainrpc
       # A client can also request a historical backlog of blocks from a particular
       # point. This allows clients to be idempotent by ensuring that they do not
       # missing processing a single block within the chain.
-      rpc :RegisterBlockEpochNtfn, BlockEpoch, stream(BlockEpoch)
+      rpc :RegisterBlockEpochNtfn, ::Chainrpc::BlockEpoch, stream(::Chainrpc::BlockEpoch)
     end
 
     Stub = Service.rpc_stub_class

@@ -10,7 +10,7 @@ module Signrpc
     # daemon's wallet.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -25,7 +25,7 @@ module Signrpc
       #
       # If we are  unable to sign using the specified keys, then an error will be
       # returned.
-      rpc :SignOutputRaw, SignReq, SignResp
+      rpc :SignOutputRaw, ::Signrpc::SignReq, ::Signrpc::SignResp
       #
       # ComputeInputScript generates a complete InputIndex for the passed
       # transaction with the signature as defined within the passed SignDescriptor.
@@ -37,30 +37,31 @@ module Signrpc
       # the only items of the SignDescriptor that need to be populated are pkScript
       # in the TxOut field, the value in that same field, and finally the input
       # index.
-      rpc :ComputeInputScript, SignReq, InputScriptResp
+      rpc :ComputeInputScript, ::Signrpc::SignReq, ::Signrpc::InputScriptResp
       #
       # SignMessage signs a message with the key specified in the key locator. The
       # returned signature is fixed-size LN wire format encoded.
       #
       # The main difference to SignMessage in the main RPC is that a specific key is
       # used to sign the message instead of the node identity private key.
-      rpc :SignMessage, SignMessageReq, SignMessageResp
+      rpc :SignMessage, ::Signrpc::SignMessageReq, ::Signrpc::SignMessageResp
       #
       # VerifyMessage verifies a signature over a message using the public key
       # provided. The signature must be fixed-size LN wire format encoded.
       #
       # The main difference to VerifyMessage in the main RPC is that the public key
       # used to sign the message does not have to be a node known to the network.
-      rpc :VerifyMessage, VerifyMessageReq, VerifyMessageResp
+      rpc :VerifyMessage, ::Signrpc::VerifyMessageReq, ::Signrpc::VerifyMessageResp
       #
       # DeriveSharedKey returns a shared secret key by performing Diffie-Hellman key
       # derivation between the ephemeral public key in the request and the node's
-      # key specified in the key_loc parameter (or the node's identity private key
-      # if no key locator is specified):
+      # key specified in the key_desc parameter. Either a key locator or a raw
+      # public key is expected in the key_desc, if neither is supplied, defaults to
+      # the node's identity private key:
       # P_shared = privKeyNode * ephemeralPubkey
       # The resulting shared public key is serialized in the compressed format and
       # hashed with sha256, resulting in the final key length of 256bit.
-      rpc :DeriveSharedKey, SharedKeyRequest, SharedKeyResponse
+      rpc :DeriveSharedKey, ::Signrpc::SharedKeyRequest, ::Signrpc::SharedKeyResponse
     end
 
     Stub = Service.rpc_stub_class

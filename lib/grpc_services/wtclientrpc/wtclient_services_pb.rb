@@ -10,7 +10,7 @@ module Wtclientrpc
     # functionality of the daemon.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -21,21 +21,21 @@ module Wtclientrpc
       # considers it for new sessions. If the watchtower already exists, then
       # any new addresses included will be considered when dialing it for
       # session negotiations and backups.
-      rpc :AddTower, AddTowerRequest, AddTowerResponse
+      rpc :AddTower, ::Wtclientrpc::AddTowerRequest, ::Wtclientrpc::AddTowerResponse
       #
       # RemoveTower removes a watchtower from being considered for future session
       # negotiations and from being used for any subsequent backups until it's added
       # again. If an address is provided, then this RPC only serves as a way of
       # removing the address from the watchtower instead.
-      rpc :RemoveTower, RemoveTowerRequest, RemoveTowerResponse
+      rpc :RemoveTower, ::Wtclientrpc::RemoveTowerRequest, ::Wtclientrpc::RemoveTowerResponse
       # ListTowers returns the list of watchtowers registered with the client.
-      rpc :ListTowers, ListTowersRequest, ListTowersResponse
+      rpc :ListTowers, ::Wtclientrpc::ListTowersRequest, ::Wtclientrpc::ListTowersResponse
       # GetTowerInfo retrieves information for a registered watchtower.
-      rpc :GetTowerInfo, GetTowerInfoRequest, Tower
+      rpc :GetTowerInfo, ::Wtclientrpc::GetTowerInfoRequest, ::Wtclientrpc::Tower
       # Stats returns the in-memory statistics of the client since startup.
-      rpc :Stats, StatsRequest, StatsResponse
+      rpc :Stats, ::Wtclientrpc::StatsRequest, ::Wtclientrpc::StatsResponse
       # Policy returns the active watchtower client policy configuration.
-      rpc :Policy, PolicyRequest, PolicyResponse
+      rpc :Policy, ::Wtclientrpc::PolicyRequest, ::Wtclientrpc::PolicyResponse
     end
 
     Stub = Service.rpc_stub_class

@@ -50,10 +50,15 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :num_sessions_exhausted, :uint32, 5
     end
     add_message "wtclientrpc.PolicyRequest" do
+      optional :policy_type, :enum, 1, "wtclientrpc.PolicyType"
     end
     add_message "wtclientrpc.PolicyResponse" do
       optional :max_updates, :uint32, 1
       optional :sweep_sat_per_byte, :uint32, 2
+    end
+    add_enum "wtclientrpc.PolicyType" do
+      value :LEGACY, 0
+      value :ANCHOR, 1
     end
   end
 end
@@ -72,4 +77,5 @@ module Wtclientrpc
   StatsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("wtclientrpc.StatsResponse").msgclass
   PolicyRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("wtclientrpc.PolicyRequest").msgclass
   PolicyResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("wtclientrpc.PolicyResponse").msgclass
+  PolicyType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("wtclientrpc.PolicyType").enummodule
 end

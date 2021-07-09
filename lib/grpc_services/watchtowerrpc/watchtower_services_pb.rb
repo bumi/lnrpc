@@ -10,7 +10,7 @@ module Watchtowerrpc
     # functionality of the daemon.
     class Service
 
-      include GRPC::GenericService
+      include ::GRPC::GenericService
 
       self.marshal_class_method = :encode
       self.unmarshal_class_method = :decode
@@ -20,7 +20,7 @@ module Watchtowerrpc
       # GetInfo returns general information concerning the companion watchtower
       # including its public key and URIs where the server is currently
       # listening for clients.
-      rpc :GetInfo, GetInfoRequest, GetInfoResponse
+      rpc :GetInfo, ::Watchtowerrpc::GetInfoRequest, ::Watchtowerrpc::GetInfoResponse
     end
 
     Stub = Service.rpc_stub_class

@@ -58,6 +58,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "signrpc.SharedKeyRequest" do
       optional :ephemeral_pubkey, :bytes, 1
       optional :key_loc, :message, 2, "signrpc.KeyLocator"
+      optional :key_desc, :message, 3, "signrpc.KeyDescriptor"
     end
     add_message "signrpc.SharedKeyResponse" do
       optional :shared_key, :bytes, 1
