@@ -51,6 +51,19 @@ module Routerrpc
       # It is a development feature.
       rpc :QueryMissionControl, ::Routerrpc::QueryMissionControlRequest, ::Routerrpc::QueryMissionControlResponse
       #
+      # XImportMissionControl is an experimental API that imports the state provided
+      # to the internal mission control's state, using all results which are more
+      # recent than our existing values. These values will only be imported
+      # in-memory, and will not be persisted across restarts.
+      rpc :XImportMissionControl, ::Routerrpc::XImportMissionControlRequest, ::Routerrpc::XImportMissionControlResponse
+      #
+      # GetMissionControlConfig returns mission control's current config.
+      rpc :GetMissionControlConfig, ::Routerrpc::GetMissionControlConfigRequest, ::Routerrpc::GetMissionControlConfigResponse
+      #
+      # SetMissionControlConfig will set mission control's config, if the config
+      # provided is valid.
+      rpc :SetMissionControlConfig, ::Routerrpc::SetMissionControlConfigRequest, ::Routerrpc::SetMissionControlConfigResponse
+      #
       # QueryProbability returns the current success probability estimate for a
       # given node pair and amount.
       rpc :QueryProbability, ::Routerrpc::QueryProbabilityRequest, ::Routerrpc::QueryProbabilityResponse
@@ -79,6 +92,12 @@ module Routerrpc
       # In case of interception, the htlc can be either settled, cancelled or
       # resumed later by using the ResolveHoldForward endpoint.
       rpc :HtlcInterceptor, stream(::Routerrpc::ForwardHtlcInterceptResponse), stream(::Routerrpc::ForwardHtlcInterceptRequest)
+      #
+      # UpdateChanStatus attempts to manually set the state of a channel
+      # (enabled, disabled, or auto). A manual "disable" request will cause the
+      # channel to stay disabled until a subsequent manual request of either
+      # "enable" or "auto".
+      rpc :UpdateChanStatus, ::Routerrpc::UpdateChanStatusRequest, ::Routerrpc::UpdateChanStatusResponse
     end
 
     Stub = Service.rpc_stub_class

@@ -28,6 +28,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :max_parts, :uint32, 17
       optional :no_inflight_updates, :bool, 18
       optional :max_shard_size_msat, :uint64, 21
+      optional :amp, :bool, 22
     end
     add_message "routerrpc.TrackPaymentRequest" do
       optional :payment_hash, :bytes, 1
@@ -58,6 +59,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "routerrpc.QueryMissionControlResponse" do
       repeated :pairs, :message, 2, "routerrpc.PairHistory"
     end
+    add_message "routerrpc.XImportMissionControlRequest" do
+      repeated :pairs, :message, 1, "routerrpc.PairHistory"
+    end
+    add_message "routerrpc.XImportMissionControlResponse" do
+    end
     add_message "routerrpc.PairHistory" do
       optional :node_from, :bytes, 1
       optional :node_to, :bytes, 2
@@ -70,6 +76,23 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :success_time, :int64, 5
       optional :success_amt_sat, :int64, 6
       optional :success_amt_msat, :int64, 7
+    end
+    add_message "routerrpc.GetMissionControlConfigRequest" do
+    end
+    add_message "routerrpc.GetMissionControlConfigResponse" do
+      optional :config, :message, 1, "routerrpc.MissionControlConfig"
+    end
+    add_message "routerrpc.SetMissionControlConfigRequest" do
+      optional :config, :message, 1, "routerrpc.MissionControlConfig"
+    end
+    add_message "routerrpc.SetMissionControlConfigResponse" do
+    end
+    add_message "routerrpc.MissionControlConfig" do
+      optional :half_life_seconds, :uint64, 1
+      optional :hop_probability, :float, 2
+      optional :weight, :float, 3
+      optional :maximum_payment_results, :uint32, 4
+      optional :minimum_failure_relax_interval, :uint64, 5
     end
     add_message "routerrpc.QueryProbabilityRequest" do
       optional :from_node, :bytes, 1
@@ -156,6 +179,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :action, :enum, 2, "routerrpc.ResolveHoldForwardAction"
       optional :preimage, :bytes, 3
     end
+    add_message "routerrpc.UpdateChanStatusRequest" do
+      optional :chan_point, :message, 1, "lnrpc.ChannelPoint"
+      optional :action, :enum, 2, "routerrpc.ChanStatusAction"
+    end
+    add_message "routerrpc.UpdateChanStatusResponse" do
+    end
     add_enum "routerrpc.FailureDetail" do
       value :UNKNOWN, 0
       value :NO_DETAIL, 1
@@ -195,6 +224,11 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :FAIL, 1
       value :RESUME, 2
     end
+    add_enum "routerrpc.ChanStatusAction" do
+      value :ENABLE, 0
+      value :DISABLE, 1
+      value :AUTO, 2
+    end
   end
 end
 
@@ -209,8 +243,15 @@ module Routerrpc
   ResetMissionControlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.ResetMissionControlResponse").msgclass
   QueryMissionControlRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.QueryMissionControlRequest").msgclass
   QueryMissionControlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.QueryMissionControlResponse").msgclass
+  XImportMissionControlRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.XImportMissionControlRequest").msgclass
+  XImportMissionControlResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.XImportMissionControlResponse").msgclass
   PairHistory = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.PairHistory").msgclass
   PairData = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.PairData").msgclass
+  GetMissionControlConfigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.GetMissionControlConfigRequest").msgclass
+  GetMissionControlConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.GetMissionControlConfigResponse").msgclass
+  SetMissionControlConfigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.SetMissionControlConfigRequest").msgclass
+  SetMissionControlConfigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.SetMissionControlConfigResponse").msgclass
+  MissionControlConfig = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.MissionControlConfig").msgclass
   QueryProbabilityRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.QueryProbabilityRequest").msgclass
   QueryProbabilityResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.QueryProbabilityResponse").msgclass
   BuildRouteRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.BuildRouteRequest").msgclass
@@ -227,7 +268,10 @@ module Routerrpc
   CircuitKey = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.CircuitKey").msgclass
   ForwardHtlcInterceptRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.ForwardHtlcInterceptRequest").msgclass
   ForwardHtlcInterceptResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.ForwardHtlcInterceptResponse").msgclass
+  UpdateChanStatusRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.UpdateChanStatusRequest").msgclass
+  UpdateChanStatusResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.UpdateChanStatusResponse").msgclass
   FailureDetail = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.FailureDetail").enummodule
   PaymentState = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.PaymentState").enummodule
   ResolveHoldForwardAction = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.ResolveHoldForwardAction").enummodule
+  ChanStatusAction = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("routerrpc.ChanStatusAction").enummodule
 end

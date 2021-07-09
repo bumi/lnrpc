@@ -26,6 +26,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :num_pending_backups, :uint32, 2
       optional :max_backups, :uint32, 3
       optional :sweep_sat_per_byte, :uint32, 4
+      optional :sweep_sat_per_vbyte, :uint32, 5
     end
     add_message "wtclientrpc.Tower" do
       optional :pubkey, :bytes, 1
@@ -55,6 +56,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "wtclientrpc.PolicyResponse" do
       optional :max_updates, :uint32, 1
       optional :sweep_sat_per_byte, :uint32, 2
+      optional :sweep_sat_per_vbyte, :uint32, 3
     end
     add_enum "wtclientrpc.PolicyType" do
       value :LEGACY, 0

@@ -58,7 +58,7 @@ module Lnrpc
       # lncli: `sendcoins`
       # SendCoins executes a request to send coins to a particular address. Unlike
       # SendMany, this RPC call only allows creating a single output at a time. If
-      # neither target_conf, or sat_per_byte are set, then the internal wallet will
+      # neither target_conf, or sat_per_vbyte are set, then the internal wallet will
       # consult its fee model to determine a fee for the default confirmation
       # target.
       rpc :SendCoins, ::Lnrpc::SendCoinsRequest, ::Lnrpc::SendCoinsResponse
@@ -75,7 +75,7 @@ module Lnrpc
       rpc :SubscribeTransactions, ::Lnrpc::GetTransactionsRequest, stream(::Lnrpc::Transaction)
       # lncli: `sendmany`
       # SendMany handles a request for a transaction that creates multiple specified
-      # outputs in parallel. If neither target_conf, or sat_per_byte are set, then
+      # outputs in parallel. If neither target_conf, or sat_per_vbyte are set, then
       # the internal wallet will consult its fee model to determine a fee for the
       # default confirmation target.
       rpc :SendMany, ::Lnrpc::SendManyRequest, ::Lnrpc::SendManyResponse

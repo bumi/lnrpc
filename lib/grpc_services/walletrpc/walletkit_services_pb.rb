@@ -33,6 +33,9 @@ module Walletrpc
       # originally lock the output.
       rpc :ReleaseOutput, ::Walletrpc::ReleaseOutputRequest, ::Walletrpc::ReleaseOutputResponse
       #
+      # ListLeases lists all currently locked utxos.
+      rpc :ListLeases, ::Walletrpc::ListLeasesRequest, ::Walletrpc::ListLeasesResponse
+      #
       # DeriveNextKey attempts to derive the *next* key within the key family
       # (account in BIP43) specified. This method should return the next external
       # child within this branch.
@@ -44,6 +47,43 @@ module Walletrpc
       #
       # NextAddr returns the next unused address within the wallet.
       rpc :NextAddr, ::Walletrpc::AddrRequest, ::Walletrpc::AddrResponse
+      #
+      # ListAccounts retrieves all accounts belonging to the wallet by default. A
+      # name and key scope filter can be provided to filter through all of the
+      # wallet accounts and return only those matching.
+      rpc :ListAccounts, ::Walletrpc::ListAccountsRequest, ::Walletrpc::ListAccountsResponse
+      #
+      # ImportAccount imports an account backed by an account extended public key.
+      # The master key fingerprint denotes the fingerprint of the root key
+      # corresponding to the account public key (also known as the key with
+      # derivation path m/). This may be required by some hardware wallets for
+      # proper identification and signing.
+      #
+      # The address type can usually be inferred from the key's version, but may be
+      # required for certain keys to map them into the proper scope.
+      #
+      # For BIP-0044 keys, an address type must be specified as we intend to not
+      # support importing BIP-0044 keys into the wallet using the legacy
+      # pay-to-pubkey-hash (P2PKH) scheme. A nested witness address type will force
+      # the standard BIP-0049 derivation scheme, while a witness address type will
+      # force the standard BIP-0084 derivation scheme.
+      #
+      # For BIP-0049 keys, an address type must also be specified to make a
+      # distinction between the standard BIP-0049 address schema (nested witness
+      # pubkeys everywhere) and our own BIP-0049Plus address schema (nested pubkeys
+      # externally, witness pubkeys internally).
+      #
+      # NOTE: Events (deposits/spends) for keys derived from an account will only be
+      # detected by lnd if they happen after the import. Rescans to detect past
+      # events will be supported later on.
+      rpc :ImportAccount, ::Walletrpc::ImportAccountRequest, ::Walletrpc::ImportAccountResponse
+      #
+      # ImportPublicKey imports a public key as watch-only into the wallet.
+      #
+      # NOTE: Events (deposits/spends) for a key will only be detected by lnd if
+      # they happen after the import. Rescans to detect past events will be
+      # supported later on.
+      rpc :ImportPublicKey, ::Walletrpc::ImportPublicKeyRequest, ::Walletrpc::ImportPublicKeyResponse
       #
       # PublishTransaction attempts to publish the passed transaction to the
       # network. Once this returns without an error, the wallet will continually

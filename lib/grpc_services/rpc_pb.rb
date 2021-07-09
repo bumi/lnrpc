@@ -28,6 +28,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "lnrpc.GetTransactionsRequest" do
       optional :start_height, :int32, 1
       optional :end_height, :int32, 2
+      optional :account, :string, 3
     end
     add_message "lnrpc.TransactionDetails" do
       repeated :transactions, :message, 1, "lnrpc.Transaction"
@@ -55,6 +56,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       map :dest_custom_records, :uint64, :bytes, 11
       optional :allow_self_payment, :bool, 14
       repeated :dest_features, :enum, 15, "lnrpc.FeatureBit"
+      optional :payment_addr, :bytes, 16
     end
     add_message "lnrpc.SendResponse" do
       optional :payment_error, :string, 1
@@ -113,14 +115,18 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "lnrpc.EstimateFeeRequest" do
       map :AddrToAmount, :string, :int64, 1
       optional :target_conf, :int32, 2
+      optional :min_confs, :int32, 3
+      optional :spend_unconfirmed, :bool, 4
     end
     add_message "lnrpc.EstimateFeeResponse" do
       optional :fee_sat, :int64, 1
       optional :feerate_sat_per_byte, :int64, 2
+      optional :sat_per_vbyte, :uint64, 3
     end
     add_message "lnrpc.SendManyRequest" do
       map :AddrToAmount, :string, :int64, 1
       optional :target_conf, :int32, 3
+      optional :sat_per_vbyte, :uint64, 4
       optional :sat_per_byte, :int64, 5
       optional :label, :string, 6
       optional :min_confs, :int32, 7
@@ -133,6 +139,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :addr, :string, 1
       optional :amount, :int64, 2
       optional :target_conf, :int32, 3
+      optional :sat_per_vbyte, :uint64, 4
       optional :sat_per_byte, :int64, 5
       optional :send_all, :bool, 6
       optional :label, :string, 7
@@ -145,12 +152,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "lnrpc.ListUnspentRequest" do
       optional :min_confs, :int32, 1
       optional :max_confs, :int32, 2
+      optional :account, :string, 3
     end
     add_message "lnrpc.ListUnspentResponse" do
       repeated :utxos, :message, 1, "lnrpc.Utxo"
     end
     add_message "lnrpc.NewAddressRequest" do
       optional :type, :enum, 1, "lnrpc.AddressType"
+      optional :account, :string, 2
     end
     add_message "lnrpc.NewAddressResponse" do
       optional :address, :string, 1
@@ -373,6 +382,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :target_conf, :int32, 3
       optional :sat_per_byte, :int64, 4
       optional :delivery_address, :string, 5
+      optional :sat_per_vbyte, :uint64, 6
     end
     add_message "lnrpc.CloseStatusUpdate" do
       oneof :update do
@@ -390,6 +400,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :psbt, :bytes, 3
     end
     add_message "lnrpc.OpenChannelRequest" do
+      optional :sat_per_vbyte, :uint64, 1
       optional :node_pubkey, :bytes, 2
       optional :node_pubkey_string, :string, 3
       optional :local_funding_amount, :int64, 4
@@ -550,12 +561,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :INACTIVE_CHANNEL, 3
       value :PENDING_OPEN_CHANNEL, 4
     end
+    add_message "lnrpc.WalletAccountBalance" do
+      optional :confirmed_balance, :int64, 1
+      optional :unconfirmed_balance, :int64, 2
+    end
     add_message "lnrpc.WalletBalanceRequest" do
     end
     add_message "lnrpc.WalletBalanceResponse" do
       optional :total_balance, :int64, 1
       optional :confirmed_balance, :int64, 2
       optional :unconfirmed_balance, :int64, 3
+      map :account_balance, :string, :message, 4, "lnrpc.WalletAccountBalance"
     end
     add_message "lnrpc.Amount" do
       optional :sat, :uint64, 1
@@ -614,11 +630,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :pub_key, :string, 8
       optional :tlv_payload, :bool, 9
       optional :mpp_record, :message, 10, "lnrpc.MPPRecord"
+      optional :amp_record, :message, 12, "lnrpc.AMPRecord"
       map :custom_records, :uint64, :bytes, 11
     end
     add_message "lnrpc.MPPRecord" do
       optional :payment_addr, :bytes, 11
       optional :total_amt_msat, :int64, 10
+    end
+    add_message "lnrpc.AMPRecord" do
+      optional :root_share, :bytes, 1
+      optional :set_id, :bytes, 2
+      optional :child_index, :uint32, 3
     end
     add_message "lnrpc.Route" do
       optional :total_time_lock, :uint32, 1
@@ -721,6 +743,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :global_features, :bytes, 3
       optional :alias, :string, 4
       optional :color, :string, 5
+      repeated :node_addresses, :message, 7, "lnrpc.NodeAddress"
       map :features, :uint32, :message, 6, "lnrpc.Feature"
     end
     add_message "lnrpc.ChannelEdgeUpdate" do
@@ -773,6 +796,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       map :features, :uint32, :message, 24, "lnrpc.Feature"
       optional :is_keysend, :bool, 25
       optional :payment_addr, :bytes, 26
+      optional :is_amp, :bool, 27
     end
     add_enum "lnrpc.Invoice.InvoiceState" do
       value :OPEN, 0
@@ -791,6 +815,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :state, :enum, 8, "lnrpc.InvoiceHTLCState"
       map :custom_records, :uint64, :bytes, 9
       optional :mpp_total_amt_msat, :uint64, 10
+      optional :amp, :message, 11, "lnrpc.AMP"
+    end
+    add_message "lnrpc.AMP" do
+      optional :root_share, :bytes, 1
+      optional :set_id, :bytes, 2
+      optional :child_index, :uint32, 3
+      optional :hash, :bytes, 4
+      optional :preimage, :bytes, 5
     end
     add_message "lnrpc.AddInvoiceResponse" do
       optional :r_hash, :bytes, 1
@@ -866,6 +898,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :last_index_offset, :uint64, 3
     end
     add_message "lnrpc.DeleteAllPaymentsRequest" do
+      optional :failed_payments_only, :bool, 1
+      optional :failed_htlcs_only, :bool, 2
     end
     add_message "lnrpc.DeleteAllPaymentsResponse" do
     end
@@ -950,6 +984,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :fee_msat, :uint64, 8
       optional :amt_in_msat, :uint64, 9
       optional :amt_out_msat, :uint64, 10
+      optional :timestamp_ns, :uint64, 11
     end
     add_message "lnrpc.ForwardingHistoryResponse" do
       repeated :forwarding_events, :message, 1, "lnrpc.ForwardingEvent"
@@ -1052,6 +1087,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :PERMANENT_CHANNEL_FAILURE, 21
       value :EXPIRY_TOO_FAR, 22
       value :MPP_TIMEOUT, 23
+      value :INVALID_ONION_PAYLOAD, 24
       value :INTERNAL_FAILURE, 997
       value :UNKNOWN_FAILURE, 998
       value :UNREADABLE_FAILURE, 999
@@ -1153,6 +1189,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :ANCHORS_OPT, 21
       value :ANCHORS_ZERO_FEE_HTLC_REQ, 22
       value :ANCHORS_ZERO_FEE_HTLC_OPT, 23
+      value :AMP_REQ, 30
+      value :AMP_OPT, 31
     end
   end
 end
@@ -1244,6 +1282,7 @@ module Lnrpc
   ChannelEventSubscription = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventSubscription").msgclass
   ChannelEventUpdate = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventUpdate").msgclass
   ChannelEventUpdate::UpdateType = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ChannelEventUpdate.UpdateType").enummodule
+  WalletAccountBalance = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.WalletAccountBalance").msgclass
   WalletBalanceRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.WalletBalanceRequest").msgclass
   WalletBalanceResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.WalletBalanceResponse").msgclass
   Amount = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Amount").msgclass
@@ -1255,6 +1294,7 @@ module Lnrpc
   QueryRoutesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.QueryRoutesResponse").msgclass
   Hop = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Hop").msgclass
   MPPRecord = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.MPPRecord").msgclass
+  AMPRecord = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AMPRecord").msgclass
   Route = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Route").msgclass
   NodeInfoRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodeInfoRequest").msgclass
   NodeInfo = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.NodeInfo").msgclass
@@ -1282,6 +1322,7 @@ module Lnrpc
   Invoice = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Invoice").msgclass
   Invoice::InvoiceState = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.Invoice.InvoiceState").enummodule
   InvoiceHTLC = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.InvoiceHTLC").msgclass
+  AMP = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AMP").msgclass
   AddInvoiceResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.AddInvoiceResponse").msgclass
   PaymentHash = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.PaymentHash").msgclass
   ListInvoiceRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("lnrpc.ListInvoiceRequest").msgclass
