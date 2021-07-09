@@ -25,10 +25,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib", "lib/grpc_services"]
 
-  spec.add_development_dependency "bundler", "~> 1.17"
+  spec.add_development_dependency "bundler", "> 2.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
 
-  spec.add_dependency "grpc", ">= 1.19.0"
-  spec.add_dependency "google-protobuf", ">=3.7"
+  spec.add_dependency "grpc", ">= 1.28.0"
+  spec.add_dependency "google-protobuf", ">=3.12"
 end
