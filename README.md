@@ -5,7 +5,7 @@ a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https:
 
 ## Installation
 
-Note: there is still an GRPC/protobuf [issue with Ruby 2.7](https://github.com/protocolbuffers/protobuf/issues/7070). 
+Note: there is still an GRPC/protobuf [issue with Ruby 2.7](https://github.com/protocolbuffers/protobuf/issues/7070).
 So lnrpc requires Ruby < 2.7.
 
 Add this line to your application's Gemfile:
@@ -164,6 +164,8 @@ The files will be stored in `lib/grpc_services`
 
     $ ./generate-grpc-service-files.sh
 
++ Make sure you have the [grpc-tools](https://rubygems.org/gems/grpc-tools) installed
++ Make sure you have the lnd source in your $GOPATH/src folder
 
 ## Other resources
 
