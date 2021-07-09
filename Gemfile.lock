@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    lnrpc (0.11.1)
-      google-protobuf (>= 3.12)
+    lnrpc (0.13.0)
+      google-protobuf (>= 3.15.7)
       grpc (>= 1.28.0)
 
 GEM
@@ -40,4 +40,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   2.1.4
+   2.2.23

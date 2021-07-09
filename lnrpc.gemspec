@@ -30,5 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
 
   spec.add_dependency "grpc", ">= 1.28.0"
-  spec.add_dependency "google-protobuf", ">=3.12"
+  spec.add_dependency "google-protobuf", ">=3.15.7"
 end

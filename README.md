@@ -5,13 +5,10 @@ a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https:
 
 ## Installation
 
-Note: there is still an GRPC/protobuf [issue with Ruby 2.7](https://github.com/protocolbuffers/protobuf/issues/7070).
-So lnrpc requires Ruby < 2.7.
-
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'lnrpc', '~> 0.11.0'
+gem 'lnrpc', '~> 0.13.0'
 ```
 lnrpc follows the lnd versioning, thus it is recommended to specify the exact version you need for your lnd node as dependency (see [#Versioning](#Versioning)).
 
