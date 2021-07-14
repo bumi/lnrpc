@@ -75,7 +75,7 @@ lnd = Lnrpc::Client.new({credentials_path: '/path/to.cert.cls', macaroon_path: '
 lnd.lightning # => Lnrpc::Lightning::Stub
 lnd.router # => Lnrpc::Router::Stub
 
-lnd.ligthning.get_info
+lnd.lightning.get_info
 ```
 
 Also have a look at [examples.rb](https://github.com/bumi/lnrpc/blob/master/examples.rb)
