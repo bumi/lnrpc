@@ -24,3 +24,33 @@ puts lnd.wallet_kit.next_addr
 lnd.lightning.subscribe_invoices(settle_index: 1).each do |invoice|
   puts invoice.payment_request
 end
+
+# sign a message with your node
+signed_message = lnd.lightning.sign_message({ msg: "Money printer goes brrr" })
+puts "Signature: " + signed_message.signature
+
+# verify a signed message by another node
+verification_response = lnd.lightning.verify_message({
+  msg: "Money printer goes brrr",
+  signature: signed_message.signature
+})
+puts "Pubkey: " + verification_response.pubkey # pubkey of the node that signed
+puts "Valid: " + verification_response.valid.to_s
+
+# get information on a node
+node_info_response = lnd.lightning.get_node_info(pub_key: verification_response.pubkey, include_channels: true)
+puts "Updated: " + Time.at(node_info_response.node.last_update).to_s
+puts "Pubkey: " + node_info_response.node.pub_key.to_s
+puts "Alias: " + node_info_response.node.alias.to_s
+puts "Color: " + node_info_response.node.color.to_s
+puts "Channels: " + node_info_response.num_channels.to_s
+puts "Capacity SAT: " + node_info_response.total_capacity.to_s
+puts "Address: " + node_info_response.node.addresses.first["addr"].to_s
+
+# extract channel information
+node_info_response.channels.each do |channel|
+  puts "Channel ID: " + channel["channel_id"].to_s
+  puts "Channel 1:" + channel["node1_pub"].to_s # pubkey of the first node
+  puts "Channel 2:" + channel["node2_pub"].to_s # pubkey of the second node
+  puts "Channel Capacity:" + channel["capacity"].to_s
+end
