@@ -24,7 +24,7 @@ Or install it yourself as:
 
 ## Usage
 
-This gem makes the gRPC client classes created from the [LND service defintions](https://github.com/lightningnetwork/lnd/tree/master/lnrpc) available.  
+This gem makes the gRPC client classes created from the [LND service definitions](https://github.com/lightningnetwork/lnd/tree/master/lnrpc) available.  
 
 ```ruby
 require "lnrpc"
@@ -32,7 +32,7 @@ require "lnrpc"
 # With the changes in LND v.10.0 this load the `Lnrpc` and `Routerrpc` namespace
 
 Lnrpc::Lightning::Stub
-Routerrpc:::Routerrpc::Stub
+Routerrpc::Routerrpc::Stub
 Lnrpc::GetInfoRequest
 ...
 ```
@@ -130,7 +130,7 @@ client.lightning.grpc.list_channels(request)
 
 client.lightning.wallet_balance.total_balance
 # is the same as:
-request = Lnrpc::WalletBalanceRequest.new()
+request = Lnrpc::WalletBalanceRequest.new
 client.lightning.grpc.wallet_balance(request).total_balance
 ```
 
@@ -141,7 +141,7 @@ If you have a running BTC Pay Server with LND support, integrating with lnrpc is
 - Navigate to Services on the Server Settings page
 - Click "see information" for your gRPC Server
 - The link by "More details..." will expose the address and various macaroon hex strings
-- Initialize your client with the options detailed above. BTC Pay Server utilizes LetsEncrypt for trusted TLC       Certificates so set that option to nil.
+- Initialize your client with the options detailed above. BTC Pay Server utilizes LetsEncrypt for trusted TLC Certificates so set that option to nil.
 
 Don't have a BTC Pay Server? [Setting one up is easy.](https://medium.com/@BtcpayServer/launch-btcpay-server-via-web-interface-and-deploy-full-bitcoin-node-lnd-in-less-than-a-minute-dc8bc6f06a3)
 
