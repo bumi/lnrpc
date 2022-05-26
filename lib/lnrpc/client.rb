@@ -1,4 +1,5 @@
 require "grpc"
+require "digest"
 require "lnrpc/macaroon_interceptor"
 module Lnrpc
   class Client
