@@ -43,6 +43,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "signrpc.SignMessageReq" do
       optional :msg, :bytes, 1
       optional :key_loc, :message, 2, "signrpc.KeyLocator"
+      optional :double_hash, :bool, 3
+      optional :compact_sig, :bool, 4
     end
     add_message "signrpc.SignMessageResp" do
       optional :signature, :bytes, 1
