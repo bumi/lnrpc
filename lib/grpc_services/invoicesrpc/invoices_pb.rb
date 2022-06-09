@@ -4,6 +4,7 @@
 require 'google/protobuf'
 
 require 'rpc_pb'
+
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("invoicesrpc/invoices.proto", :syntax => :proto3) do
     add_message "invoicesrpc.CancelInvoiceMsg" do
@@ -25,6 +26,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "invoicesrpc.AddHoldInvoiceResp" do
       optional :payment_request, :string, 1
+      optional :add_index, :uint64, 2
+      optional :payment_addr, :bytes, 3
     end
     add_message "invoicesrpc.SettleInvoiceMsg" do
       optional :preimage, :bytes, 1
@@ -33,6 +36,19 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "invoicesrpc.SubscribeSingleInvoiceRequest" do
       optional :r_hash, :bytes, 2
+    end
+    add_message "invoicesrpc.LookupInvoiceMsg" do
+      optional :lookup_modifier, :enum, 4, "invoicesrpc.LookupModifier"
+      oneof :invoice_ref do
+        optional :payment_hash, :bytes, 1
+        optional :payment_addr, :bytes, 2
+        optional :set_id, :bytes, 3
+      end
+    end
+    add_enum "invoicesrpc.LookupModifier" do
+      value :DEFAULT, 0
+      value :HTLC_SET_ONLY, 1
+      value :HTLC_SET_BLANK, 2
     end
   end
 end
@@ -45,4 +61,6 @@ module Invoicesrpc
   SettleInvoiceMsg = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("invoicesrpc.SettleInvoiceMsg").msgclass
   SettleInvoiceResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("invoicesrpc.SettleInvoiceResp").msgclass
   SubscribeSingleInvoiceRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("invoicesrpc.SubscribeSingleInvoiceRequest").msgclass
+  LookupInvoiceMsg = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("invoicesrpc.LookupInvoiceMsg").msgclass
+  LookupModifier = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("invoicesrpc.LookupModifier").enummodule
 end

@@ -34,6 +34,10 @@ module Invoicesrpc
       # SettleInvoice settles an accepted invoice. If the invoice is already
       # settled, this call will succeed.
       rpc :SettleInvoice, ::Invoicesrpc::SettleInvoiceMsg, ::Invoicesrpc::SettleInvoiceResp
+      #
+      # LookupInvoiceV2 attempts to look up at invoice. An invoice can be refrenced
+      # using either its payment hash, payment address, or set ID.
+      rpc :LookupInvoiceV2, ::Invoicesrpc::LookupInvoiceMsg, ::Lnrpc::Invoice
     end
 
     Stub = Service.rpc_stub_class

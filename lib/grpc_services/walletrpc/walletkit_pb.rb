@@ -5,6 +5,7 @@ require 'google/protobuf'
 
 require 'rpc_pb'
 require 'signrpc/signer_pb'
+
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("walletrpc/walletkit.proto", :syntax => :proto3) do
     add_message "walletrpc.ListUnspentRequest" do
@@ -35,6 +36,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "walletrpc.AddrRequest" do
       optional :account, :string, 1
+      optional :type, :enum, 2, "walletrpc.AddressType"
+      optional :change, :bool, 3
     end
     add_message "walletrpc.AddrResponse" do
       optional :addr, :string, 1

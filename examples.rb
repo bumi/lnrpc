@@ -54,3 +54,16 @@ node_info_response.channels.each do |channel|
   puts "Channel 2:" + channel["node2_pub"].to_s # pubkey of the second node
   puts "Channel Capacity:" + channel["capacity"].to_s
 end
+
+# update channel policy
+channel = lnd.lightning.list_channels.channels[0]
+puts lnd.lightning.get_chan_info(chan_id: channel.chan_id)
+channel_point = {
+  funding_txid_str: channel.channel_point.split(":")[0],
+  output_index: channel.channel_point.split(":")[1].to_i
+}
+lnd.lightning.update_channel_policy({
+  time_lock_delta: 40,
+  base_fee_msat: 1100,
+  chan_point: channel_point
+})

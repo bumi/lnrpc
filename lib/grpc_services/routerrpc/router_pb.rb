@@ -4,6 +4,7 @@
 require 'google/protobuf'
 
 require 'rpc_pb'
+
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("routerrpc/router.proto", :syntax => :proto3) do
     add_message "routerrpc.SendPaymentRequest" do
@@ -147,6 +148,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "routerrpc.ForwardFailEvent" do
     end
     add_message "routerrpc.SettleEvent" do
+      optional :preimage, :bytes, 1
     end
     add_message "routerrpc.LinkFailEvent" do
       optional :info, :message, 1, "routerrpc.HtlcInfo"
