@@ -18,7 +18,9 @@ module Walletrpc
 
       #
       # ListUnspent returns a list of all utxos spendable by the wallet with a
-      # number of confirmations between the specified minimum and maximum.
+      # number of confirmations between the specified minimum and maximum. By
+      # default, all utxos are listed. To list only the unconfirmed utxos, set
+      # the unconfirmed_only to true.
       rpc :ListUnspent, ::Walletrpc::ListUnspentRequest, ::Walletrpc::ListUnspentResponse
       #
       # LeaseOutput locks an output to the given ID, preventing it from being

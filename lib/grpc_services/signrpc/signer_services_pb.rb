@@ -62,6 +62,71 @@ module Signrpc
       # The resulting shared public key is serialized in the compressed format and
       # hashed with sha256, resulting in the final key length of 256bit.
       rpc :DeriveSharedKey, ::Signrpc::SharedKeyRequest, ::Signrpc::SharedKeyResponse
+      #
+      # MuSig2CombineKeys (experimental!) is a stateless helper RPC that can be used
+      # to calculate the combined MuSig2 public key from a list of all participating
+      # signers' public keys. This RPC is completely stateless and deterministic and
+      # does not create any signing session. It can be used to determine the Taproot
+      # public key that should be put in an on-chain output once all public keys are
+      # known. A signing session is only needed later when that output should be
+      # _spent_ again.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2CombineKeys, ::Signrpc::MuSig2CombineKeysRequest, ::Signrpc::MuSig2CombineKeysResponse
+      #
+      # MuSig2CreateSession (experimental!) creates a new MuSig2 signing session
+      # using the local key identified by the key locator. The complete list of all
+      # public keys of all signing parties must be provided, including the public
+      # key of the local signing key. If nonces of other parties are already known,
+      # they can be submitted as well to reduce the number of RPC calls necessary
+      # later on.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2CreateSession, ::Signrpc::MuSig2SessionRequest, ::Signrpc::MuSig2SessionResponse
+      #
+      # MuSig2RegisterNonces (experimental!) registers one or more public nonces of
+      # other signing participants for a session identified by its ID. This RPC can
+      # be called multiple times until all nonces are registered.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2RegisterNonces, ::Signrpc::MuSig2RegisterNoncesRequest, ::Signrpc::MuSig2RegisterNoncesResponse
+      #
+      # MuSig2Sign (experimental!) creates a partial signature using the local
+      # signing key that was specified when the session was created. This can only
+      # be called when all public nonces of all participants are known and have been
+      # registered with the session. If this node isn't responsible for combining
+      # all the partial signatures, then the cleanup flag should be set, indicating
+      # that the session can be removed from memory once the signature was produced.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2Sign, ::Signrpc::MuSig2SignRequest, ::Signrpc::MuSig2SignResponse
+      #
+      # MuSig2CombineSig (experimental!) combines the given partial signature(s)
+      # with the local one, if it already exists. Once a partial signature of all
+      # participants is registered, the final signature will be combined and
+      # returned.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2CombineSig, ::Signrpc::MuSig2CombineSigRequest, ::Signrpc::MuSig2CombineSigResponse
+      #
+      # MuSig2Cleanup (experimental!) allows a caller to clean up a session early in
+      # cases where it's obvious that the signing session won't succeed and the
+      # resources can be released.
+      #
+      # NOTE: The MuSig2 BIP is not final yet and therefore this API must be
+      # considered to be HIGHLY EXPERIMENTAL and subject to change in upcoming
+      # releases. Backward compatibility is not guaranteed!
+      rpc :MuSig2Cleanup, ::Signrpc::MuSig2CleanupRequest, ::Signrpc::MuSig2CleanupResponse
     end
 
     Stub = Service.rpc_stub_class

@@ -1,4 +1,5 @@
 # Lnrpc - ruby gRPC client for LND
+
 [![Gem Version](https://badge.fury.io/rb/lnrpc.svg)](https://badge.fury.io/rb/lnrpc)
 
 a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https://github.com/lightningnetwork/lnd/) packed as ruby gem.
@@ -10,6 +11,7 @@ Add this line to your application's Gemfile:
 ```ruby
 gem 'lnrpc', '~> 0.13.0'
 ```
+
 lnrpc follows the lnd versioning, thus it is recommended to specify the exact version you need for your lnd node as dependency (see [#Versioning](#Versioning)).
 
 And then execute:
@@ -24,7 +26,7 @@ Or install it yourself as:
 
 ## Usage
 
-This gem makes the gRPC client classes created from the [LND service definitions](https://github.com/lightningnetwork/lnd/tree/master/lnrpc) available.  
+This gem makes the gRPC client classes created from the [LND service definitions](https://github.com/lightningnetwork/lnd/tree/master/lnrpc) available.
 
 ```ruby
 require "lnrpc"
@@ -70,6 +72,7 @@ An optional client wrapper ([Lnrpc::Client](https://github.com/bumi/lnrpc/blob/m
 initializing the gRPC client easier and removes the need for some boilerplate code for calling RPC methods.
 
 #### Example
+
 ```ruby
 lnd = Lnrpc::Client.new({credentials_path: '/path/to.cert.cls', macaroon_path: '/path/to/admin.macaroon'})
 lnd.lightning # => Lnrpc::Lightning::Stub
@@ -84,13 +87,13 @@ Also have a look at [examples.rb](https://github.com/bumi/lnrpc/blob/master/exam
 
 The Lnrpc::Client constructor allows the following options:
 
-* credentials:
+- credentials:
   - `credentials` : the credentials data as string (pass nil if a "trusted" cert (e.g. from letsencrypt is used)
   - `credentials_path` : the path to a credentials file (tls.cert) as string (default: `"#{LND_HOME_DIR}/tls.cert"` )
-* macaroon:
+- macaroon:
   - `macaroon` : the macaroon as hex string
   - `macaroon_path` : the path to the macaroon file created by lnd as string (default: `"#{LND_HOME_DIR}/data/chain/bitcoin/mainnet/admin.macaroon"`)
-* address:
+- address:
   - `address` : lnd address as string. format: address:port, e.g. localhost:10009 (default)
 
 If no credentials or no macaroon is provided default files are assumed in `ENV['LND_HOME'] || "~/.lnd"`.
@@ -135,6 +138,7 @@ client.lightning.grpc.wallet_balance(request).total_balance
 ```
 
 ## Using with BTC Pay Server
+
 If you have a running BTC Pay Server with LND support, integrating with lnrpc is easy.
 
 - Navigate to the domain associated with your BTC Pay Server
@@ -145,14 +149,12 @@ If you have a running BTC Pay Server with LND support, integrating with lnrpc is
 
 Don't have a BTC Pay Server? [Setting one up is easy.](https://medium.com/@BtcpayServer/launch-btcpay-server-via-web-interface-and-deploy-full-bitcoin-node-lnd-in-less-than-a-minute-dc8bc6f06a3)
 
-
 ## Versioning
 
 This gem follows the LND versions and will update the gRPC service definitions accordingly.
 e.g. gem version 0.5.2 includes the gRPC service definitions from LND v0.5.2
 
 see [rubygems](https://rubygems.org/gems/lnrpc) for all available releases.
-
 
 ### Update service definitions
 
@@ -161,14 +163,16 @@ The files will be stored in `lib/grpc_services`
 
     $ ./generate-grpc-service-files.sh
 
-+ Make sure you have the [grpc-tools](https://rubygems.org/gems/grpc-tools) installed
-+ Make sure you have the lnd source in your $GOPATH/src folder
+- Make sure you have the [grpc-tools](https://rubygems.org/gems/grpc-tools) installed
+- Make sure you have the lnd source in your $GOPATH/src folder
+
+- Note: There have been issues with the generated requires `require "lightning_pb"` must be replaced with `require "rpc_pb"` (I don't know exactly why)
 
 ## Other resources
 
-* [LND gRPC API Reference](https://api.lightning.community)
-* [LND Developer Site](https://dev.lightning.community/)
-* [gRPC Ruby quick start](https://grpc.io/docs/quickstart/ruby.html)
+- [LND gRPC API Reference](https://api.lightning.community)
+- [LND Developer Site](https://dev.lightning.community/)
+- [gRPC Ruby quick start](https://grpc.io/docs/quickstart/ruby.html)
 
 ## Contributing
 

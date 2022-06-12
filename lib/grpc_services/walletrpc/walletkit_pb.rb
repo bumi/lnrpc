@@ -12,6 +12,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :min_confs, :int32, 1
       optional :max_confs, :int32, 2
       optional :account, :string, 3
+      optional :unconfirmed_only, :bool, 4
     end
     add_message "walletrpc.ListUnspentResponse" do
       repeated :utxos, :message, 1, "lnrpc.Utxo"
@@ -172,6 +173,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :id, :bytes, 1
       optional :outpoint, :message, 2, "lnrpc.OutPoint"
       optional :expiration, :uint64, 3
+      optional :pk_script, :bytes, 4
+      optional :value, :uint64, 5
     end
     add_message "walletrpc.SignPsbtRequest" do
       optional :funded_psbt, :bytes, 1
@@ -197,6 +200,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :WITNESS_PUBKEY_HASH, 1
       value :NESTED_WITNESS_PUBKEY_HASH, 2
       value :HYBRID_NESTED_WITNESS_PUBKEY_HASH, 3
+      value :TAPROOT_PUBKEY, 4
     end
     add_enum "walletrpc.WitnessType" do
       value :UNKNOWN_WITNESS, 0

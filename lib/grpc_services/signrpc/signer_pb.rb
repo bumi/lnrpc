@@ -21,14 +21,17 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :key_desc, :message, 1, "signrpc.KeyDescriptor"
       optional :single_tweak, :bytes, 2
       optional :double_tweak, :bytes, 3
+      optional :tap_tweak, :bytes, 10
       optional :witness_script, :bytes, 4
       optional :output, :message, 5, "signrpc.TxOut"
       optional :sighash, :uint32, 7
       optional :input_index, :int32, 8
+      optional :sign_method, :enum, 9, "signrpc.SignMethod"
     end
     add_message "signrpc.SignReq" do
       optional :raw_tx_bytes, :bytes, 1
       repeated :sign_descs, :message, 2, "signrpc.SignDescriptor"
+      repeated :prev_outputs, :message, 3, "signrpc.TxOut"
     end
     add_message "signrpc.SignResp" do
       repeated :raw_sigs, :bytes, 1
@@ -65,6 +68,71 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "signrpc.SharedKeyResponse" do
       optional :shared_key, :bytes, 1
     end
+    add_message "signrpc.TweakDesc" do
+      optional :tweak, :bytes, 1
+      optional :is_x_only, :bool, 2
+    end
+    add_message "signrpc.TaprootTweakDesc" do
+      optional :script_root, :bytes, 1
+      optional :key_spend_only, :bool, 2
+    end
+    add_message "signrpc.MuSig2CombineKeysRequest" do
+      repeated :all_signer_pubkeys, :bytes, 1
+      repeated :tweaks, :message, 2, "signrpc.TweakDesc"
+      optional :taproot_tweak, :message, 3, "signrpc.TaprootTweakDesc"
+    end
+    add_message "signrpc.MuSig2CombineKeysResponse" do
+      optional :combined_key, :bytes, 1
+      optional :taproot_internal_key, :bytes, 2
+    end
+    add_message "signrpc.MuSig2SessionRequest" do
+      optional :key_loc, :message, 1, "signrpc.KeyLocator"
+      repeated :all_signer_pubkeys, :bytes, 2
+      repeated :other_signer_public_nonces, :bytes, 3
+      repeated :tweaks, :message, 4, "signrpc.TweakDesc"
+      optional :taproot_tweak, :message, 5, "signrpc.TaprootTweakDesc"
+    end
+    add_message "signrpc.MuSig2SessionResponse" do
+      optional :session_id, :bytes, 1
+      optional :combined_key, :bytes, 2
+      optional :taproot_internal_key, :bytes, 3
+      optional :local_public_nonces, :bytes, 4
+      optional :have_all_nonces, :bool, 5
+    end
+    add_message "signrpc.MuSig2RegisterNoncesRequest" do
+      optional :session_id, :bytes, 1
+      repeated :other_signer_public_nonces, :bytes, 3
+    end
+    add_message "signrpc.MuSig2RegisterNoncesResponse" do
+      optional :have_all_nonces, :bool, 1
+    end
+    add_message "signrpc.MuSig2SignRequest" do
+      optional :session_id, :bytes, 1
+      optional :message_digest, :bytes, 2
+      optional :cleanup, :bool, 3
+    end
+    add_message "signrpc.MuSig2SignResponse" do
+      optional :local_partial_signature, :bytes, 1
+    end
+    add_message "signrpc.MuSig2CombineSigRequest" do
+      optional :session_id, :bytes, 1
+      repeated :other_partial_signatures, :bytes, 2
+    end
+    add_message "signrpc.MuSig2CombineSigResponse" do
+      optional :have_all_signatures, :bool, 1
+      optional :final_signature, :bytes, 2
+    end
+    add_message "signrpc.MuSig2CleanupRequest" do
+      optional :session_id, :bytes, 1
+    end
+    add_message "signrpc.MuSig2CleanupResponse" do
+    end
+    add_enum "signrpc.SignMethod" do
+      value :SIGN_METHOD_WITNESS_V0, 0
+      value :SIGN_METHOD_TAPROOT_KEY_SPEND_BIP0086, 1
+      value :SIGN_METHOD_TAPROOT_KEY_SPEND, 2
+      value :SIGN_METHOD_TAPROOT_SCRIPT_SPEND, 3
+    end
   end
 end
 
@@ -83,4 +151,19 @@ module Signrpc
   VerifyMessageResp = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.VerifyMessageResp").msgclass
   SharedKeyRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.SharedKeyRequest").msgclass
   SharedKeyResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.SharedKeyResponse").msgclass
+  TweakDesc = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.TweakDesc").msgclass
+  TaprootTweakDesc = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.TaprootTweakDesc").msgclass
+  MuSig2CombineKeysRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CombineKeysRequest").msgclass
+  MuSig2CombineKeysResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CombineKeysResponse").msgclass
+  MuSig2SessionRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2SessionRequest").msgclass
+  MuSig2SessionResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2SessionResponse").msgclass
+  MuSig2RegisterNoncesRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2RegisterNoncesRequest").msgclass
+  MuSig2RegisterNoncesResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2RegisterNoncesResponse").msgclass
+  MuSig2SignRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2SignRequest").msgclass
+  MuSig2SignResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2SignResponse").msgclass
+  MuSig2CombineSigRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CombineSigRequest").msgclass
+  MuSig2CombineSigResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CombineSigResponse").msgclass
+  MuSig2CleanupRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CleanupRequest").msgclass
+  MuSig2CleanupResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.MuSig2CleanupResponse").msgclass
+  SignMethod = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("signrpc.SignMethod").enummodule
 end
