@@ -18,9 +18,8 @@ for file in $PROTOS; do
   echo "Generating protos from ${file}, into ${LNRPC_TARGET_DIR}/${DIRECTORY}"
 
   # writes all ruby files in the ruby directory
-  grpc_tools_ruby_protoc -I/usr/local/include \
-    -I. \
-    -I$GOPATH/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+  grpc_tools_ruby_protoc -I. \
+    -I$GOPATH/src/github.com/googleapis/googleapis \
     -I$GOPATH/src/github.com/lightningnetwork/lnd/lnrpc \
     --ruby_out=plugins=grpc,paths=source_relative:${LNRPC_TARGET_DIR} \
     --grpc_out=${LNRPC_TARGET_DIR} "${file}"
