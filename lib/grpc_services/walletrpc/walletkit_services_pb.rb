@@ -169,6 +169,19 @@ module Walletrpc
       # an error on the caller's side.
       rpc :FundPsbt, ::Walletrpc::FundPsbtRequest, ::Walletrpc::FundPsbtResponse
       #
+      # SignPsbt expects a partial transaction with all inputs and outputs fully
+      # declared and tries to sign all unsigned inputs that have all required fields
+      # (UTXO information, BIP32 derivation information, witness or sig scripts)
+      # set.
+      # If no error is returned, the PSBT is ready to be given to the next signer or
+      # to be finalized if lnd was the last signer.
+      #
+      # NOTE: This RPC only signs inputs (and only those it can sign), it does not
+      # perform any other tasks (such as coin selection, UTXO locking or
+      # input/output/fee value validation, PSBT finalization). Any input that is
+      # incomplete will be skipped.
+      rpc :SignPsbt, ::Walletrpc::SignPsbtRequest, ::Walletrpc::SignPsbtResponse
+      #
       # FinalizePsbt expects a partial transaction with all inputs and outputs fully
       # declared and tries to sign all inputs that belong to the wallet. Lnd must be
       # the last signer of the transaction. That means, if there are any unsigned

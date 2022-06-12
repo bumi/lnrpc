@@ -173,6 +173,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :outpoint, :message, 2, "lnrpc.OutPoint"
       optional :expiration, :uint64, 3
     end
+    add_message "walletrpc.SignPsbtRequest" do
+      optional :funded_psbt, :bytes, 1
+    end
+    add_message "walletrpc.SignPsbtResponse" do
+      optional :signed_psbt, :bytes, 1
+    end
     add_message "walletrpc.FinalizePsbtRequest" do
       optional :funded_psbt, :bytes, 1
       optional :account, :string, 5
@@ -248,6 +254,8 @@ module Walletrpc
   FundPsbtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FundPsbtResponse").msgclass
   TxTemplate = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.TxTemplate").msgclass
   UtxoLease = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.UtxoLease").msgclass
+  SignPsbtRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.SignPsbtRequest").msgclass
+  SignPsbtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.SignPsbtResponse").msgclass
   FinalizePsbtRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FinalizePsbtRequest").msgclass
   FinalizePsbtResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.FinalizePsbtResponse").msgclass
   ListLeasesRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ListLeasesRequest").msgclass

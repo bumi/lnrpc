@@ -62,6 +62,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "routerrpc.XImportMissionControlRequest" do
       repeated :pairs, :message, 1, "routerrpc.PairHistory"
+      optional :force, :bool, 2
     end
     add_message "routerrpc.XImportMissionControlResponse" do
     end
