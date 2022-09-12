@@ -76,6 +76,10 @@ lnd.lightning.update_channel_policy({
   chan_point: channel_point
 })
 
+# peer node
+address = {pubkey: "03423790614f023e3c0cdaa654a3578e919947e4c3a14bf5044e7c787ebd11af1a", host: "98.142.251.170:9735"}
+response = lnd.lightning.connect_peer(addr: address)
+
 # open channel
 # note: Lnrpc needs to connect with an admin macaroon, and the node needs to be an existing peer.
 pubkey = Lnrpc.to_byte_array("031f2669adab71548fad4432277a0d90233e3bc07ac29cfb0b3e01bd3fb26cb9fa")
