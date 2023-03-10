@@ -3,7 +3,7 @@
 
 require 'google/protobuf'
 
-require 'rpc_pb'
+require 'lightning_pb'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("routerrpc/router.proto", :syntax => :proto3) do
@@ -30,6 +30,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :no_inflight_updates, :bool, 18
       optional :max_shard_size_msat, :uint64, 21
       optional :amp, :bool, 22
+      optional :time_pref, :double, 23
     end
     add_message "routerrpc.TrackPaymentRequest" do
       optional :payment_hash, :bytes, 1
@@ -46,6 +47,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "routerrpc.SendToRouteRequest" do
       optional :payment_hash, :bytes, 1
       optional :route, :message, 2, "lnrpc.Route"
+      optional :skip_temp_err, :bool, 3
     end
     add_message "routerrpc.SendToRouteResponse" do
       optional :preimage, :bytes, 1
@@ -181,6 +183,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :incoming_circuit_key, :message, 1, "routerrpc.CircuitKey"
       optional :action, :enum, 2, "routerrpc.ResolveHoldForwardAction"
       optional :preimage, :bytes, 3
+      optional :failure_message, :bytes, 4
+      optional :failure_code, :enum, 5, "lnrpc.Failure.FailureCode"
     end
     add_message "routerrpc.UpdateChanStatusRequest" do
       optional :chan_point, :message, 1, "lnrpc.ChannelPoint"

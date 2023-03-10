@@ -18,7 +18,9 @@ module Walletrpc
 
       #
       # ListUnspent returns a list of all utxos spendable by the wallet with a
-      # number of confirmations between the specified minimum and maximum.
+      # number of confirmations between the specified minimum and maximum. By
+      # default, all utxos are listed. To list only the unconfirmed utxos, set
+      # the unconfirmed_only to true.
       rpc :ListUnspent, ::Walletrpc::ListUnspentRequest, ::Walletrpc::ListUnspentResponse
       #
       # LeaseOutput locks an output to the given ID, preventing it from being
@@ -52,6 +54,11 @@ module Walletrpc
       # name and key scope filter can be provided to filter through all of the
       # wallet accounts and return only those matching.
       rpc :ListAccounts, ::Walletrpc::ListAccountsRequest, ::Walletrpc::ListAccountsResponse
+      #
+      # RequiredReserve returns the minimum amount of satoshis that should be kept
+      # in the wallet in order to fee bump anchor channels if necessary. The value
+      # scales with the number of public anchor channels but is capped at a maximum.
+      rpc :RequiredReserve, ::Walletrpc::RequiredReserveRequest, ::Walletrpc::RequiredReserveResponse
       #
       # ImportAccount imports an account backed by an account extended public key.
       # The master key fingerprint denotes the fingerprint of the root key
