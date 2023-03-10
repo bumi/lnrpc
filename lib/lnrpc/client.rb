@@ -16,13 +16,13 @@ module Lnrpc
       if options.has_key?(:credentials)
         # if there are non hex values prvided we assume it's the certificate file as string otherwise we assume it's the hex value
         self.credentials = options[:credentials].match?(/\H/) ? options[:credentials] : [options[:credentials]].pack('H*')
-      elsif File.exists?(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
+      elsif File.exist?(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
         self.credentials = ::File.read(::File.expand_path(options[:credentials_path] || DEFAULT_CREDENTIALS_PATH))
       else
         self.credentials = nil
       end
 
-      if !options.has_key?(:macaroon) && File.exists?(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH))
+      if !options.has_key?(:macaroon) && File.exist?(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH))
         options[:macaroon] = ::File.read(::File.expand_path(options[:macaroon_path] || DEFAULT_MACAROON_PATH)).unpack("H*")
       end
       self.macaroon = options[:macaroon]
