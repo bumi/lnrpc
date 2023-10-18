@@ -84,3 +84,17 @@ response = lnd.lightning.connect_peer(addr: address)
 # note: Lnrpc needs to connect with an admin macaroon, and the node needs to be an existing peer.
 pubkey = Lnrpc.to_byte_array("031f2669adab71548fad4432277a0d90233e3bc07ac29cfb0b3e01bd3fb26cb9fa")
 response = lnd.lightning.open_channel({node_pubkey: pubkey, local_funding_amount: 21000})
+
+# extract details from a lightning invoice
+lightning_invoice = "lnbc990..." # created by payee
+invoice_details = lnd.lightning.decode_pay_req({pay_req: lightning_invoice})
+puts invoice_details.inspect
+puts "Destination: " + invoice_details.destination.to_s
+puts "Amount Sats: " + invoice_details.num_satoshis.to_s
+puts "Description: " + invoice_details.description.to_s
+puts "Created At: " + Time.at(invoice_details.timestamp).to_s
+puts "Expiry Hours: " + (invoice_details.expiry/3600).to_s
+puts "Payment Hash: " + invoice_details.payment_hash.to_s
+# Payment hash should match a hashed version of the preimage
+preimage = "f2a3a..." # known by payee, and revealed to the payer only if payment is successful
+puts "Payment verified!" if invoice_details.payment_hash == Digest::SHA256.hexdigest([preimage].pack("H*"))
