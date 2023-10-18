@@ -3,7 +3,7 @@
 
 require 'google/protobuf'
 
-require 'rpc_pb'
+require 'lightning_pb'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("invoicesrpc/invoices.proto", :syntax => :proto3) do

@@ -8,7 +8,7 @@ a [gRPC](https://grpc.io/) client for [LND, the Lightning Network Daemon](https:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'lnrpc', '~> 0.13.0'
+gem 'lnrpc', '~> 0.15.5'
 ```
 lnrpc follows the lnd versioning, thus it is recommended to specify the exact version you need for your lnd node as dependency (see [#Versioning](#Versioning)).
 

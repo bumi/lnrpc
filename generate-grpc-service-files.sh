@@ -10,7 +10,7 @@ cd $GOPATH/src/github.com/lightningnetwork/lnd/lnrpc
 
 echo "Generating Ruby GRPC Service Files"
 
-PROTOS="rpc.proto walletunlocker.proto **/*.proto"
+PROTOS="lightning.proto walletunlocker.proto stateservice.proto **/*.proto"
 
 # generate files for each proto
 for file in $PROTOS; do

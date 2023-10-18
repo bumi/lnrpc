@@ -3,7 +3,7 @@
 
 require 'google/protobuf'
 
-require 'rpc_pb'
+require 'lightning_pb'
 require 'signrpc/signer_pb'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
@@ -12,6 +12,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :min_confs, :int32, 1
       optional :max_confs, :int32, 2
       optional :account, :string, 3
+      optional :unconfirmed_only, :bool, 4
     end
     add_message "walletrpc.ListUnspentResponse" do
       repeated :utxos, :message, 1, "lnrpc.Utxo"
@@ -58,6 +59,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     end
     add_message "walletrpc.ListAccountsResponse" do
       repeated :accounts, :message, 1, "walletrpc.Account"
+    end
+    add_message "walletrpc.RequiredReserveRequest" do
+      optional :additional_public_channels, :uint32, 1
+    end
+    add_message "walletrpc.RequiredReserveResponse" do
+      optional :required_reserve, :int64, 1
     end
     add_message "walletrpc.ImportAccountRequest" do
       optional :name, :string, 1
@@ -172,6 +179,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :id, :bytes, 1
       optional :outpoint, :message, 2, "lnrpc.OutPoint"
       optional :expiration, :uint64, 3
+      optional :pk_script, :bytes, 4
+      optional :value, :uint64, 5
     end
     add_message "walletrpc.SignPsbtRequest" do
       optional :funded_psbt, :bytes, 1
@@ -197,6 +206,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       value :WITNESS_PUBKEY_HASH, 1
       value :NESTED_WITNESS_PUBKEY_HASH, 2
       value :HYBRID_NESTED_WITNESS_PUBKEY_HASH, 3
+      value :TAPROOT_PUBKEY, 4
     end
     add_enum "walletrpc.WitnessType" do
       value :UNKNOWN_WITNESS, 0
@@ -230,6 +240,8 @@ module Walletrpc
   Account = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.Account").msgclass
   ListAccountsRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ListAccountsRequest").msgclass
   ListAccountsResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ListAccountsResponse").msgclass
+  RequiredReserveRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.RequiredReserveRequest").msgclass
+  RequiredReserveResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.RequiredReserveResponse").msgclass
   ImportAccountRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ImportAccountRequest").msgclass
   ImportAccountResponse = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ImportAccountResponse").msgclass
   ImportPublicKeyRequest = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("walletrpc.ImportPublicKeyRequest").msgclass
