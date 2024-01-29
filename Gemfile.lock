@@ -9,11 +9,11 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.5.0)
-    google-protobuf (3.22.1)
-    googleapis-common-protos-types (1.5.0)
+    google-protobuf (3.23.4)
+    googleapis-common-protos-types (1.7.0)
       google-protobuf (~> 3.14)
-    grpc (1.52.0)
-      google-protobuf (~> 3.21)
+    grpc (1.56.2)
+      google-protobuf (~> 3.23)
       googleapis-common-protos-types (~> 1.0)
     rake (13.0.6)
     rspec (3.11.0)
