@@ -11,6 +11,7 @@ module Lnrpc
   class Error < StandardError; end
   autoload :Client, 'lnrpc/client'
   autoload :GrpcWrapper, 'lnrpc/grpc_wrapper'
+  autoload :PaymentResponse, 'lnrpc/payment_response'
   autoload :MacaroonInterceptor, 'lnrpc/macaroon_interceptor'
 
   PREIMAGE_BYTE_LENGTH = 32
